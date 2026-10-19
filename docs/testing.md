@@ -107,16 +107,26 @@ Dataset-ийг **M6-аас** цуглуулж эхэлнэ. M6-аас өмнө �
 
 ## 6. Командууд
 
-`package.json`-д тохируулсны дараа (жишээ):
+Одоо `package.json`-д байгаа (M1):
 ```bash
-npm run lint
-npm run typecheck
-npm run test
-npm run test:int
-npm run test:e2e
-npm run eval
+npm run lint            # ESLint
+npm run format:check    # Prettier
+npm run typecheck       # next typegen && tsc --noEmit
+npm test                # Vitest (unit, design token contrast)
+npm run build
+npm run test:e2e        # Playwright, production build дээр (эхлээд build)
+npm run check:contrast  # Contrast хүснэгтийг хэвлэнэ
 ```
-Тохируулаагүй скриптийг байгаа мэт бүү бич.
+M2-оос (Docker + local Supabase шаардлагатай):
+```bash
+npm run db:start        # supabase start (migration + config.toml)
+npm run db:env          # Supabase env-ийг хэвлэнэ (>> .env.local)
+npm run test:int        # Vitest, tests/integration (RLS, trigger, route handler)
+npm run db:stop
+```
+Дараа нэмэгдэх: `eval` (M6). Тохируулаагүй скриптийг байгаа мэт бүү бич.
+
+Integration тест нь Route Handler-ийг (`POST`) `NextRequest`-ээр шууд дуудаж, RLS-ийг publishable түлхүүртэй client-ээр (browser-ийн чадах зүйл) шалгана. Тест хэрэглэгчид нууц үгтэй (зөвхөн тест тохиргоо); апп өөрөө зөвхөн OTP санал болгоно. E2E нь OTP кодыг local имэйл барих серверээс (`MAIL_CATCHER_URL`, порт 54324) уншина — API нь Mailpit эсвэл Inbucket эсэхийг **шалгах шаардлагатай** (хоёуланг оролдоно).
 
 ## 7. CI
 
@@ -124,6 +134,8 @@ npm run eval
 secret scan → lint → typecheck → unit + component → integration (Supabase local, RLS шалгалт) → build → e2e (mock AI) → (prompt өөрчлөгдсөн бол) eval
 ```
 Migration main branch-д merge хийгдэхэд staging Supabase-д deploy хийгдэнэ (M5-аас).
+
+CI-ийн орчин: `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Secret scan тусдаа job-оор зэрэг ажиллана. Одоогийн (M1) алхам: `.github/workflows/ci.yml`.
 Бүгд ногоон байж байж merge хийнэ. E2E унавал trace хадгална.
 
 ## 8. Тестийн өгөгдөл

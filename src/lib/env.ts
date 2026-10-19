@@ -15,6 +15,8 @@ export const serverEnvSchema = z
     // Fail closed: there is no default, an unset APP_ENV stops the app.
     APP_ENV: z.enum(APP_ENVS),
     AI_PROVIDER: z.string().trim().min(1),
+    // Supabase secret key (maps to the service_role Postgres role). Server only.
+    SUPABASE_SECRET_KEY: z.string().trim().min(1),
   })
   .refine((env) => !(env.APP_ENV === "production" && env.AI_PROVIDER === "mock"), {
     message: "AI_PROVIDER=mock is not allowed when APP_ENV=production",
@@ -23,6 +25,9 @@ export const serverEnvSchema = z
 
 export const publicEnvSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url({ protocol: /^https?$/ }),
+  NEXT_PUBLIC_SUPABASE_URL: z.url({ protocol: /^https?$/ }),
+  // Supabase publishable key (maps to the anon/authenticated roles; RLS applies).
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().trim().min(1),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
@@ -64,6 +69,8 @@ export function getPublicEnv(): PublicEnv {
   // Each NEXT_PUBLIC_* variable must be referenced literally so Next.js can inline it.
   publicEnv ??= parsePublicEnv({
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   });
   return publicEnv;
 }

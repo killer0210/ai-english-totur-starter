@@ -2,9 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { EnvValidationError, parsePublicEnv, parseServerEnv } from "@/lib/env";
 
-const server = { APP_ENV: "local", AI_PROVIDER: "mock" };
+const server = { APP_ENV: "local", AI_PROVIDER: "mock", SUPABASE_SECRET_KEY: "sb_secret_test" };
 const publicVars = {
   NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
+  NEXT_PUBLIC_SUPABASE_URL: "http://127.0.0.1:54321",
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
 };
 
 describe("parseServerEnv", () => {
@@ -22,6 +24,9 @@ describe("parseServerEnv", () => {
   it("rejects missing variables and names them", () => {
     expect(() => parseServerEnv({})).toThrow(/APP_ENV/);
     expect(() => parseServerEnv({ ...server, AI_PROVIDER: undefined })).toThrow(/AI_PROVIDER/);
+    expect(() => parseServerEnv({ ...server, SUPABASE_SECRET_KEY: undefined })).toThrow(
+      /SUPABASE_SECRET_KEY/,
+    );
   });
 
   it("rejects an unknown APP_ENV", () => {
@@ -73,8 +78,19 @@ describe("parsePublicEnv", () => {
     ).toThrow(EnvValidationError);
   });
 
+  it("requires the Supabase URL and publishable key", () => {
+    expect(() => parsePublicEnv({ ...publicVars, NEXT_PUBLIC_SUPABASE_URL: undefined })).toThrow(
+      /NEXT_PUBLIC_SUPABASE_URL/,
+    );
+    expect(() =>
+      parsePublicEnv({ ...publicVars, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "" }),
+    ).toThrow(/NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY/);
+  });
+
   it("validates separately from server variables", () => {
-    // Server variables are never part of the public schema.
-    expect(parsePublicEnv({ ...publicVars, AI_PROVIDER: "x" })).not.toHaveProperty("AI_PROVIDER");
+    // The secret key is never part of the public schema.
+    expect(parsePublicEnv({ ...publicVars, SUPABASE_SECRET_KEY: "x" })).not.toHaveProperty(
+      "SUPABASE_SECRET_KEY",
+    );
   });
 });

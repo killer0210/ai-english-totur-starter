@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="mn" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        {/* Makes messages/mn.json available to client components. */}
+        {/* Makes messages/mn.json available to client components (forms). */}
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

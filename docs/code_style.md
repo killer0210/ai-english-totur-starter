@@ -74,7 +74,7 @@ export const POST = withErrorHandling(async (req, { params }) => {
 ## 6. Алдаа
 
 - Дотоод алдааг `AppError(code, messageMn, status, retryable)`-ээр.
-- `withErrorHandling()`: `AppError` → JSON; бусад → 500 + алдааны хяналт.
+- `withErrorHandling()`: `AppError` → JSON; `ZodError` → 400 `VALIDATION_FAILED`; бусад → 500 `INTERNAL` + `logger.error` (алдааны хяналтын хэрэгсэл сонгогдсоны дараа түүнд).
 - Хэрэглэгчид аюулгүй мессеж; stack trace, провайдерын дотоод мэдээлэл хэзээ ч.
 - Алдааг чимээгүй залгихгүй; хоосон `catch` хориотой.
 - Логт ашигтай мета өгөгдөл, нууц болон мессежийн агуулгагүй.

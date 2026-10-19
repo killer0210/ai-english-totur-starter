@@ -49,7 +49,8 @@ Route Handlers (/api/*)
 src/
 ├── app/
 │   ├── (public)/  page.tsx  login/
-│   ├── (app)/     age-confirmation/  onboarding/  home/  path/  talk/[sessionId]/  talk/[sessionId]/feedback/
+│   ├── (app)/     layout.tsx (session шаардлагатай)  age-confirmation/
+│   │   └── (gated)/  layout.tsx (18+ шаардлагатай; M3-аас онбординг)  home/  onboarding/  path/  talk/[sessionId]/  talk/[sessionId]/feedback/
 │   │              history/  words/  review/  progress/  settings/
 │   └── api/       (backend_schema.md §5)
 ├── components/
@@ -67,17 +68,21 @@ src/
 │   │   ├── prompts/           # conversation.v1.ts, feedback.v1.ts, hint.v1.ts
 │   │   └── schemas.ts
 │   ├── supabase/
-│   │   ├── browser.ts         # зөвхөн нэвтрэлт (OTP)
-│   │   ├── server.ts          # хэрэглэгчийн session-тэй client — уншилт
+│   │   ├── server.ts          # хэрэглэгчийн session-тэй client — Server Component-ийн уншилт
+│   │   ├── route.ts           # хүсэлтээс үүсгэсэн session client — Route Handler (OTP, sign-out)
 │   │   └── admin.ts           # service role, "server-only" — бичилт, DB функц
-│   ├── env.ts                 # Zod-оор шалгасан env
-│   ├── errors.ts              # AppError
-│   ├── origin.ts              # Origin шалгалт
+│   ├── env.ts                 # Zod-оор шалгасан env (server ба NEXT_PUBLIC тусдаа)
+│   ├── errors.ts              # AppError, withErrorHandling
+│   ├── logger.ts              # бүтэцтэй JSON лог
+│   ├── origin.ts              # Origin шалгалт (M2)
+│   ├── security/              # csp.ts (nonce CSP), headers.ts (статик header)
 │   └── validation/
+├── i18n/request.ts            # next-intl, routing-гүй, locale = mn
+└── proxy.ts                   # хүсэлт бүрт CSP nonce (Next.js 16-ийн middleware)
 messages/mn.json               # UI текст (repo root)
 content/scenarios/*.json       # сценарийн агуулга (D-11)
 scripts/                       # upsert-content, invite-users, delete-account
-supabase/  migrations/  seed.sql   # seed.sql — зөвхөн local тест хэрэглэгч
+supabase/  config.toml  migrations/  templates/   # local Supabase (auth тохиргоо, OTP имэйл)
 tests/     unit/  integration/  e2e/  evals/  factories/
 docs/
 ```
@@ -125,7 +130,7 @@ interface AiProvider {
 
 - Feature код провайдерын хариуны хэлбэрээс хамаарахгүй.
 - Провайдер, модель, prompt хувилбарыг `ai_usage_events` ба `feedback_reports`-д хадгална.
-- `mock` провайдер (`providers/mock.ts`) тодорхой хариу буцаана; unit/integration/E2E ба CI-д ашиглана; `NODE_ENV=production` үед хориотой.
+- `mock` провайдер (`providers/mock.ts`) тодорхой хариу буцаана; unit/integration/E2E, CI, staging-д ашиглана; `APP_ENV=production` үед хориотой.
 - Провайдерын failover-ийг нууцлал, зардал, чанарыг ойлгохоос өмнө нэмэхгүй.
 - Провайдерыг M6-аас өмнө хоёр провайдерыг 20–30 жишээгээр харьцуулж сонгоно (`prd.md §10`).
 
@@ -136,7 +141,8 @@ interface AiProvider {
 ## 7. Өгөгдлийн эзэмшил ба эрх (ADR-004, ADR-005)
 
 - Хэрэглэгчийн мөр бүр `auth.users`-тай шууд эсвэл composite FK-тай эцгээр холбогдоно — өөр хэрэглэгчийн мөр рүү заах боломжгүй.
-- **Уншилт:** `lib/supabase/server.ts` (хэрэглэгчийн session) — RLS зөвхөн өөрийн мөрийг харуулна.
+- **Нэвтрэлт:** browser-т Supabase client байхгүй. OTP илгээх/шалгах, гарах нь Route Handler-ээр (`lib/supabase/route.ts`) — session cookie-г сервер бичнэ (HttpOnly).
+- **Уншилт:** `lib/supabase/server.ts` (хэрэглэгчийн session) — RLS зөвхөн өөрийн мөрийг харуулна. Session-ийг `getClaims()`-ээр баталгаажуулна (`getSession()`-д серверт итгэхгүй).
 - **Бичилт:** `lib/supabase/admin.ts` (service role) зөвхөн `features/*/data.ts`-ээс импортлогдоно. Нэг мөрийн бичилт `user_id`-аар шүүнэ; олон алхамт бичилт DB функцээр (`backend_schema.md §4.1`).
 - `userId` зөвхөн баталгаажсан session-оос; client-ийн ID нь зөвхөн сонголт, эрхийн нотолгоо биш.
 - `admin.ts` browser bundle-д орохгүйг (`server-only`) build-ийн шалгалтаар баталгаажуулна.
@@ -144,7 +150,7 @@ interface AiProvider {
 ## 8. Ажиглалт (observability)
 
 - Хүсэлтийн үр дүн, хүлээлгийн хугацаа, провайдер/модель, token, ойролцоо зардал (`ai_usage_events`, 12 сар).
-- Алдааны хяналт (`ERROR_MONITORING_DSN`) — хэрэгслийг M1-д сонгоно.
+- Алдааны хяналт (`ERROR_MONITORING_DSN`) — хэрэгслийн сонголт хойшлогдсон; бодит AI алдаа гарч эхлэхээс өмнө (M6-аас өмнө) сонгоно. Түр зуур `src/lib/logger.ts` бүтэцтэй JSON лог бичнэ.
 - Мессежийн бүрэн агуулга, имэйл, токеныг логлохгүй.
 - Логийн хадгалах хугацаа, хандалтын эрхийг нууцлалын бодлогод тодорхойлно.
 

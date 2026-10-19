@@ -12,7 +12,8 @@
 ## 2. Нэвтрэлт ба эрх
 
 - Supabase Auth: **имэйл OTP (6 оронтой код)**, нууц үггүй. Google нэвтрэлт 2-р шатанд.
-- Pilot урилгаар: Supabase Auth-д нийтийн бүртгэлийг хааж, admin скриптээр урилгатай хэрэглэгчийг үүсгэнэ; OTP нь шинэ хэрэглэгч үүсгэхгүй горимоор (`shouldCreateUser: false`). Тохиргоог **шалгах шаардлагатай**.
+- Pilot урилгаар (M2): `supabase/config.toml`-д нийтийн бүртгэл хаалттай (`[auth] enable_signup = false`; `[auth.email] enable_signup` нь имэйл provider-ийг асаадаг тул `true` хэвээр); `scripts/invite-users.mjs` (secret түлхүүр) урилгатай хэрэглэгчийг үүсгэнэ; `POST /api/auth/otp` нь `shouldCreateUser: false`-тэй. Hosted төсөлд ижил тохиргоог хийхийг **шалгах шаардлагатай**.
+- Бүртгэл илчлэхгүй: `POST /api/auth/otp` урилгатай/урилгагүй имэйлд ижил хариу өгнө; зөвхөн IP-ийн хязгаар (`over_request_rate_limit`) `429` буцаана. **Үлдсэн эрсдэл (шалгах шаардлагатай):** publishable түлхүүрээр Supabase Auth API-г шууд дуудвал алдааны мессеж, хариуны хугацаа урилга байгаа эсэхийг илчилж магадгүй (R-02).
 - Нийтийн мессеж бүртгэл/урилга байгаа эсэхийг илчлэхгүй ("Хэрэв таны имэйл бүртгэлтэй бол код илгээгдлээ").
 - OTP-ийн хүчинтэй хугацаа, дахин илгээх ба буруу оролдлогын хязгаар — Supabase-ийн тохиргоогоор, **шалгах шаардлагатай**.
 - Production SMTP — **шалгах шаардлагатай**.
@@ -38,7 +39,7 @@
 - LLM түлхүүр, service role зэрэг нь зөвхөн серверийн орчны хувьсагч (Vercel env).
 - `NEXT_PUBLIC_` угтвартай хувьсагчид нууц хэзээ ч бүү хий.
 - `.env.local`, токен, түлхүүр, production өгөгдлийг commit хийхгүй; `.env.example`-д зөвхөн нэр.
-- CI-д secret scanning (M1-ээс).
+- CI-д secret scanning (M1-ээс): gitleaks (хувилбар ба SHA-256 checksum `.github/workflows/ci.yml`-д бэхлэгдсэн) бүх git түүхийг scan хийж, илэрвэл CI унана.
 - Staging ба production нь тусдаа Supabase төсөл, тусдаа түлхүүртэй.
 - Ил гарсан түлхүүрийг **нэн даруй** эргүүлнэ.
 
@@ -59,7 +60,8 @@
 - Бүх оролтыг сервер дээр шалгана (мессеж ≤ 1000 тэмдэгт).
 - **CSRF:** мутаци хүлээн авах Route Handler бүр `Origin` header-ийг `NEXT_PUBLIC_SITE_URL`-тай тулгана (байхгүй эсвэл зөрвөл `403`); cookie SameSite=Lax. Server Actions MVP-д ашиглахгүй (M2).
 - Production-д HTTPS (HSTS).
-- Security header (M1): CSP (тестлэгдсэн), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` (2-р шатанд `microphone=(self)`), `frame-ancestors 'none'`.
+- **CSP (M1): nonce-д суурилсан, хатуу.** `src/proxy.ts` хүсэлт бүрт шинэ nonce үүсгэнэ; production-д `script-src 'self' 'nonce-…' 'strict-dynamic'`, `style-src 'self' 'nonce-…'` — `'unsafe-inline'`, `'unsafe-eval'` байхгүй (`'unsafe-eval'` ба inline style зөвхөн `next dev`-д). Үр дагавар: бүх хуудас хүсэлт бүрт render хийгдэнэ (root layout `connection()`), Cache Components / статик кэш ашиглахгүй. `upgrade-insecure-requests` зөвхөн `APP_ENV=staging|production`.
+- Статик header (M1, `src/lib/security/headers.ts`): `Strict-Transport-Security` (2 жил, `includeSubDomains`; `preload`-ийг домэйн тогтсоны дараа шийднэ), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (camera, microphone, geolocation хаалттай; 2-р шатанд `microphone=(self)`), `X-Frame-Options: DENY`; `X-Powered-By` хасагдсан.
 - Файл байршуулалт MVP-д байхгүй; нэмбэл хэмжээ, төрлийг хязгаарлана.
 
 ## 7. Хэтрүүлэн ашиглах ба зардал

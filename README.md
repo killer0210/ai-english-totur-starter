@@ -29,36 +29,53 @@ Next.js (App Router) · TypeScript · Tailwind + shadcn/ui · Supabase (PostgreS
 
 ## Урьдчилсан нөхцөл
 
-1. Сонгосон Next.js хувилбарт тохирох Node.js LTS
+1. Node.js 24 LTS (`.nvmrc`) ба npm
 2. Git
-3. Supabase төсөл (эсвэл Supabase CLI + Docker — local)
-4. Сервер дээр хадгалах AI провайдерын API түлхүүр
-5. `.env.local` нь `.gitignore`-д
+3. Docker (local Supabase-д; M2-оос заавал) — Supabase CLI нь `npm ci`-ээр devDependency болж суугдана
+4. M6-аас: AI провайдерын API түлхүүр
 
 ## Суулгах
 
-`package.json`, `.env.example` хэрэгжсэний дараа хүчинтэй:
+```bash
+npm ci
+cp .env.example .env.local
+npm run db:start              # local Supabase (migration, auth тохиргоо)
+npm run --silent db:env >> .env.local
+```
+
+`.env.local`-д дараах M1 утгуудыг нэмнэ (Supabase-ийн утгуудыг дээрх тушаал бичнэ):
+
+```
+APP_ENV=local
+AI_PROVIDER=mock
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+Урилгатай хэрэглэгч нэмэх (нийтийн бүртгэл хаалттай), дараа нь http://localhost:3000/login-оор нэвтэрнэ. Нэвтрэх кодыг http://127.0.0.1:54324 (local имэйл барих сервер) дээрээс харна:
 
 ```bash
-npm install
-cp .env.example .env.local   # утгуудыг бөглө
-npm run dev
+npm run invite -- you@example.com
+npm run dev                   # http://localhost:3000
 ```
+
+Тохиргоо дутуу эсвэл буруу бол (жишээ нь `APP_ENV` байхгүй, эсвэл `APP_ENV=production` + `AI_PROVIDER=mock`) `dev`, `build`, `start` нь хувьсагчийн нэрийг заасан `EnvValidationError`-оор зогсоно.
 
 ## Шалгах
 
-Скриптүүдийг `package.json`-д нэмсний дараа:
-
 ```bash
 npm run lint
+npm run format:check
 npm run typecheck
-npm run test
-npm run test:int
-npm run test:e2e
-npm run eval
+npm test                          # unit
+npm run test:int                  # integration — local Supabase ажиллаж байх ёстой
+npm run build
+npx playwright install chromium   # нэг удаа (Linux-д системийн сан дутвал: --with-deps)
+npm run test:e2e                  # production build + local Supabase
+npm run check:contrast            # design token-ийн contrast хүснэгт
+npm run db:stop
 ```
 
-Жагсаалт нь [docs/testing.md §6](docs/testing.md)-тэй ижил; скрипт бий болох үед энэ хэсгийг бодит `package.json`-той тулгана.
+`eval` (M6) скрипт тухайн milestone-д нэмэгдэнэ. CI (`.github/workflows/ci.yml`): secret scan (gitleaks) ‖ Supabase start → lint → typecheck → test → build → integration → e2e.
 
 ## Баримт бичиг
 

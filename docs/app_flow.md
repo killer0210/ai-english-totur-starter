@@ -12,7 +12,7 @@
 | S02 | Нэвтрэх | `/login` | Имэйл → 6 оронтой код |
 | S02a | Насны баталгаажуулалт | `/age-confirmation` | "Би 18 ба түүнээс дээш настай" (анхны нэвтрэлт) |
 | S03 | Онбординг | `/onboarding` | 4 алхам |
-| S04 | Home | `/home` | "Өнөөдөр" карт, товч ахиц |
+| S04 | Home | `/home` | "Өнөөдөр" карт, товч ахиц (M12). M2–M11: мэндчилгээ + "Гарах" |
 | S05 | Сургалтын зам | `/path` | Түвшин → бүлэг → сценари |
 | S06 | Яриа | `/talk/[sessionId]` | AI ярилцагч, Hint, word missions |
 | S07 | Feedback | `/talk/[sessionId]/feedback` | Сайн тал, засвар, word missions |
@@ -42,7 +42,7 @@ flowchart TD
 ```
 
 - Код илгээх мессеж нь имэйл урилгад байгаа эсэхийг илчлэхгүй.
-- Хамгаалагдсан хуудасны чиглүүлэлт (давталтгүй): нэвтрээгүй → `/login`; `age_confirmed_at` хоосон → `/age-confirmation`; `onboarding_completed_at` хоосон → `/onboarding`.
+- Хамгаалагдсан хуудасны чиглүүлэлт (давталтгүй): нэвтрээгүй → `/login?next=…`; `age_confirmed_at` хоосон → `/age-confirmation`; `onboarding_completed_at` хоосон → `/onboarding` (M3-аас; M2-д 18+ баталгаажуулсны дараа `/home`).
 
 ## 3. Буцаж ирсэн хэрэглэгч
 

@@ -33,7 +33,7 @@ jobs:
         run: ./gitleaks git --redact --no-banner --exit-code 1 .
 
   checks:
-    name: Lint, typecheck, test, build, e2e
+    name: Lint, typecheck, test, build, integration, e2e
     runs-on: ubuntu-latest
     env:
       APP_ENV: test
@@ -47,6 +47,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Local Supabase (Docker is available on GitHub-hosted Ubuntu runners).
+      # Applies supabase/migrations and supabase/config.toml. Started first
+      # because next.config.ts validates the env (typecheck runs next typegen).
+      - name: Start Supabase
+        run: npm run db:start
+      - name: Export Supabase env
+        run: npm run --silent db:env >> "$GITHUB_ENV"
       - name: Lint
         run: |
           npm run lint
@@ -57,9 +64,11 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Integration tests (Supabase local)
+        run: npm run test:int
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
-      - name: E2E (mock AI)
+      - name: E2E (mock AI, Supabase local)
         run: npm run test:e2e
       - name: Upload Playwright report
         if: failure()

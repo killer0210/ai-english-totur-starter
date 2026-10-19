@@ -124,39 +124,40 @@ const feedbackSchema = z.object({
 - **Hosting:** Vercel (app) + Supabase (DB, Auth), хоёулаа хамгийн ойрын боломжит Ази бүсэд, нэг бүсэд. Бүсийн боломжийг **шалгах шаардлагатай**.
 - Vercel function-ийн хамгийн их хугацаа нь feedback route-ийн 60 сек төсвийг хангах эсэхийг **шалгах шаардлагатай**; хангахгүй бол feedback-ийг `pending` + client polling-оор хэрэгжүүлнэ.
 - Орчин: local (Supabase CLI), staging (тусдаа Supabase төсөл, M5-аас), production (тусдаа Supabase төсөл, M13).
-- Нууц Git-д болон client bundle-д орохгүй; CI-д secret scanning (M1).
+- Node.js 24 LTS (`.nvmrc`). TypeScript 6.0 (typescript-eslint нь `< 6.1`-ийг дэмждэг), ESLint 9 (`eslint-config-next`-ийн plugin-ууд ESLint 10-ийг дэмжихгүй) — шалтгаан нь хамаарлын нийцэл; дэмжлэг гармагц шинэчилнэ.
+- Нууц Git-д болон client bundle-д орохгүй; CI-д gitleaks-ээр git түүхийг scan хийнэ (M1).
 - CI: lint, typecheck, unit/integration тест, build, mock AI-тай E2E.
 - Migration-ийг CI-ээр staging-д, гараар батлагдсаны дараа production-д deploy хийнэ. Rollback = forward-fix migration (expand/contract); app-ийг Vercel-ийн өмнөх deployment руу буцаана.
-- Имэйл OTP: production-д өөрийн SMTP шаардлагатай эсэх, хязгаар, имэйл template-д 6 оронтой код харуулах тохиргоог **шалгах шаардлагатай**.
+- Имэйл OTP (M2): local тохиргоо `supabase/config.toml` (`[auth] enable_signup = false` — нийтийн бүртгэл хаалттай; `[auth.email] enable_signup = true` — CLI үүнийг имэйл provider-ийн унтраалга (`GOTRUE_EXTERNAL_EMAIL_ENABLED`) болгон хэрэглэдэг тул `false` бол OTP нэвтрэлт ч хаагдана (`422 email_provider_disabled`), `otp_length = 6`, `otp_expiry = 3600`, `max_frequency = "60s"`, `magic_link` template-д `{{ .Token }}`). Hosted төсөлд ижил тохиргоог Dashboard-д хийнэ. Production SMTP (Supabase-ийн default имэйл зөвхөн хөгжүүлэлтэд, хүчтэй хязгаартай) — **шалгах шаардлагатай** (M13).
 
 ### Орчны хувьсагч (`.env.example`)
 
-Эхлэхэд `src/lib/env.ts` Zod-оор шалгана; серверийн ба `NEXT_PUBLIC_` хувьсагчийг тусад нь. `AI_PROVIDER=mock` нь production-д хориотой (эхлэхэд алдаа).
+- `src/lib/env.ts` серверийн ба `NEXT_PUBLIC_` хувьсагчийг тусад нь Zod-оор шалгана. `next.config.ts` үүнийг дууддаг тул `next dev`, `next build`, `next start` буруу тохиргоотой үед тодорхой алдаагаар зогсоно. Алдааны мессежид зөвхөн хувьсагчийн нэр орно, утга орохгүй.
+- **`APP_ENV`** (`local` | `test` | `staging` | `production`) нь орчныг тодорхойлно — `NODE_ENV` биш (`next build`/`next start` үргэлж `NODE_ENV=production` байдаг). `AI_PROVIDER=mock` нь зөвхөн `APP_ENV=production` үед хориотой; CI-ийн E2E (`APP_ENV=test`) ба staging (M5) mock ашиглаж болно.
+- Хувьсагч бүрийг ашиглаж эхлэх milestone-д нь `env.ts`-д заавал болгож нэмнэ (M1: `APP_ENV`, `AI_PROVIDER`, `NEXT_PUBLIC_SITE_URL`).
+- `.env.example`-д **зөвхөн нэр** (`security.md §4`). Default утгыг (`env.ts`-д хэрэгжүүлнэ) доорх хүснэгтэд тэмдэглэв.
 
-```
-NEXT_PUBLIC_SITE_URL=
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=        # нэр нь Supabase-ийн түлхүүрийн загвараас хамаарна (шалгах)
-SUPABASE_SERVICE_ROLE_KEY=            # зөвхөн сервер
-AI_PROVIDER=                          # <provider> | mock
-AI_API_KEY=                           # зөвхөн сервер
-AI_MODEL_CONVERSATION=
-AI_MODEL_FEEDBACK=
-AI_MODEL_HINT=
-AI_MAX_OUTPUT_TOKENS_REPLY=
-AI_MAX_OUTPUT_TOKENS_FEEDBACK=
-AI_MAX_OUTPUT_TOKENS_HINT=
-AI_TIMEOUT_MS=
-AI_REPLY_DEADLINE_MS=25000
-AI_FEEDBACK_DEADLINE_MS=60000
-LIMIT_REPLIES_PER_DAY=40
-LIMIT_HINTS_PER_DAY=10
-LIMIT_FEEDBACK_ATTEMPTS_PER_SESSION=2
-CONVERSATION_MAX_TURNS=20
-AI_GLOBAL_DAILY_LIMIT=                # M6-ийн хэмжилтийн дараа
-ERROR_MONITORING_DSN=
-LOG_LEVEL=info
-```
+| Хувьсагч | Milestone | Default / тайлбар |
+|---|---|---|
+| `APP_ENV` | M1 | `local` \| `test` \| `staging` \| `production` |
+| `AI_PROVIDER` | M1 | `<provider>` \| `mock` |
+| `NEXT_PUBLIC_SITE_URL` | M1 | http(s) URL |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | M2 | Publishable түлхүүр (`sb_publishable_…`) — Supabase-ийн одоогийн зөвлөмж; legacy `anon` түлхүүр 2026 оны эцэс гэхэд хуучирна |
+| `SUPABASE_SECRET_KEY` | M2 | Secret түлхүүр (`sb_secret_…`, `service_role` role), зөвхөн сервер; browser-ээс дуудвал Supabase 401 буцаана |
+| `MAIL_CATCHER_URL` | M2 | Зөвхөн тест (local имэйл барих сервер) |
+| `AI_API_KEY` | M6 | Зөвхөн сервер |
+| `AI_MODEL_CONVERSATION`, `AI_MODEL_FEEDBACK`, `AI_MODEL_HINT` | M6 | |
+| `AI_MAX_OUTPUT_TOKENS_REPLY`, `_FEEDBACK`, `_HINT` | M6 | |
+| `AI_TIMEOUT_MS` | M6 | |
+| `AI_REPLY_DEADLINE_MS` | M6 | 25000 |
+| `AI_FEEDBACK_DEADLINE_MS` | M7 | 60000 |
+| `LIMIT_REPLIES_PER_DAY` | M6 | 40 |
+| `LIMIT_HINTS_PER_DAY` | M10 | 10 |
+| `LIMIT_FEEDBACK_ATTEMPTS_PER_SESSION` | M7 | 2 |
+| `CONVERSATION_MAX_TURNS` | M5 | 20 |
+| `AI_GLOBAL_DAILY_LIMIT` | M13 | M6-ийн хэмжилтийн дараа |
+| `ERROR_MONITORING_DSN` | Хойшлуулсан | Хэрэгслийг M6-аас өмнө сонгоно |
+| `LOG_LEVEL` | Хойшлуулсан | `info` |
 
 ## 7. Fallback
 

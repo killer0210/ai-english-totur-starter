@@ -86,5 +86,12 @@
 | M-12 | Нэмэлт хамаарал | Шийдсэн | `trd.md §1` (`next-intl` routing-гүй; TanStack Query, MSW — зөвхөн шалтгаантай) |
 | M-13 | `docs/adr/` байхгүй | Шийдсэн | `docs/adr/ADR-001…005` |
 | M-14 | `MobileNav` | Шийдсэн | `design_system.md §5` |
-| M-15 | Dark contrast | Нээлттэй — шалгах шаардлагатай | `design_system.md §3`; M1 |
+| M-15 | Dark contrast | Шийдсэн: текст ≥ 4.5:1 (M1); `--input-border` (light `#64748B`, dark `#6B7280`) ≥ 3:1 (M2, `npm run check:contrast`) | `design_system.md §3` |
+
+## Хэрэгжүүлэлтийн явцад нэмэгдсэн
+
+| # | Асуудал | Төлөв | Тэмдэглэл |
+|---|---|---|---|
+| R-01 | `braces` (high, GHSA-vfj7-8cjw-p6xm) — зөвхөн dev хэрэгсэлд (`eslint-config-next` → `@next/eslint-plugin-next` → `fast-glob` → `micromatch`; `shadcn` CLI). Production хамаарал: `npm audit --omit=dev` = 0 | Хүлээн зөвшөөрсөн эрсдэл (2026-10-19) | Засах цорын ганц арга `npm audit fix --force` (эвдэх өөрчлөлт). **`eslint-config-next` шинэчлэгдэх үед эргэн харна.** |
+| R-02 | Supabase Auth API-г publishable түлхүүрээр шууд дуудвал (`signInWithOtp`, `shouldCreateUser: false`) урилгагүй имэйлийн алдаа/хариуны хугацаа урилга байгаа эсэхийг илчилж магадгүй. Апп өөрийн API (`/api/auth/otp`) ижил хариу өгдөг | Нээлттэй — шалгах шаардлагатай (M2) | Local stack дээр GoTrue-ийн хариуг харьцуулж шалгана; илчилбэл хүлээн зөвшөөрөх эсэх (урилгаар pilot, 20–50 хэрэглэгч) эсвэл captcha/hook-оор хаах нь бүтээгдэхүүний шийдвэр. |
 | M-16 | Засварын эрэмбэ | Шийдсэн | `trd.md §3.2`; `prd.md §FR-05` |

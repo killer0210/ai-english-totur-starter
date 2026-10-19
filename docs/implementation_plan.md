@@ -37,13 +37,15 @@
 
 ### M1 — Суурь, CI, security header, secret scanning
 - **Зорилго:** Хоосон ч ажилладаг, шалгагддаг, үндсэн хамгаалалттай апп.
-- **Хүрээ:** Next.js App Router, TS strict (`noUncheckedIndexedAccess`), Tailwind, shadcn/ui, ESLint (service role import-ийн хязгаарлалт), Prettier, Vitest, Playwright, `src/lib/env.ts` (Zod, `mock`-ийг production-д хориглох), `AppError` + `withErrorHandling`, `messages/mn.json`, нүүр хуудас (S01), **security header** (CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `frame-ancestors`), **CI-д secret scanning**, алдааны хяналтын хэрэгсэл сонгох, design token-ийн contrast шалгалт, `.env.example`.
-- **Хүлээн авах шалгуур:** `lint`, `typecheck`, `test`, `test:e2e` README-д бичигдэж CI-д ажиллана; дутуу env-тэй үед апп тодорхой алдаагаар эхлэхгүй; header-ууд хариунд байна; CI-д нууц илэрвэл унана.
-- **Тест:** Unit — env схем, `AppError` → JSON. E2E — нүүр хуудас утас/desktop-д хэвтээ гүйлгээгүй, axe critical/serious алдаагүй, security header байгаа эсэх. CI — туршилтын хуурамч нууцаар secret scan унахыг шалгах.
+- **Хүрээ:** Next.js App Router, TS strict (`noUncheckedIndexedAccess`), Tailwind, shadcn/ui, ESLint (service role import-ийн хязгаарлалт), Prettier, Vitest, Playwright, `src/lib/env.ts` (Zod, `mock`-ийг production-д хориглох), `AppError` + `withErrorHandling`, `messages/mn.json`, нүүр хуудас (S01), **security header** (CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `frame-ancestors`), **CI-д secret scanning**, design token-ийн contrast шалгалт, `.env.example`. Алдааны хяналтын хэрэгслийн сонголт **хойшлогдсон** (M6-аас өмнө).
+- **Хүлээн авах шалгуур:** `lint`, `typecheck`, `test`, `test:e2e` README-д бичигдэж CI-д ажиллана; дутуу env-тэй үед апп тодорхой алдаагаар эхлэхгүй; `APP_ENV=production` + `AI_PROVIDER=mock` үед эхлэхгүй; header-ууд хариунд байна; CI-д нууц илэрвэл унана.
+- **Тест:** Unit — env схем, `AppError` → JSON, CSP builder, contrast. E2E — нүүр хуудас утас/desktop-д хэвтээ гүйлгээгүй, axe critical/serious алдаагүй (light, dark), security header ба nonce, CSP зөрчилгүй, Ө/Ү-г агуулсан фонт. CI — туршилтын хуурамч нууцаар secret scan унахыг шалгах.
+- **Төлөв:** Хэрэгжсэн (2026-10-19). Тушаал ба үр дүн — M1-ийн тайланд.
 
 ### M2 — Нэвтрэлт (OTP, урилга, 18+), Origin шалгалт
 - **Зорилго:** FR-01.
-- **Хүрээ:** Supabase local; `profiles` migration (+ `auth.users` trigger, SELECT-only RLS); `lib/supabase/{browser,server,admin}.ts`; имэйл OTP (6 оронтой) нэвтрэх/гарах; нийтийн бүртгэл хаалттай, `scripts/invite-users`; `/age-confirmation` + `POST /api/age-confirmation`; middleware чиглүүлэлт; **мутацийн Route Handler-уудын Origin шалгалт** (`lib/origin.ts`); cookie тохиргоо.
+- **Хүрээ:** Supabase local; `profiles` migration (+ `auth.users` trigger, SELECT-only RLS); `lib/supabase/{server,route,admin}.ts` (browser client-гүй); имэйл OTP (6 оронтой) нэвтрэх/гарах; нийтийн бүртгэл хаалттай, `scripts/invite-users`; `/age-confirmation` + `POST /api/age-confirmation`; middleware чиглүүлэлт; **мутацийн Route Handler-уудын Origin шалгалт** (`lib/origin.ts`); cookie тохиргоо.
+- **Төлөв (2026-10-19):** Код бичигдсэн; lint, typecheck, unit (70), build давсан; migration-ийг PGlite (Supabase stub) дээр шалгасан. **Integration ба E2E ажиллаагүй** — машинд Docker байхгүй. Docker суулгасны дараа эсвэл анхны CI ажиллалтаар баталгаажуулна; тэр болтол M2 дуусаагүй.
 - **Хүлээн авах шалгуур:** Урилгагүй имэйлд код очихгүй, мессеж нь урилга байгаа эсэхийг илчлэхгүй; нэвтрээгүй → `/login`; 18+ баталгаажуулаагүй → `/age-confirmation`; буруу `Origin` → `403`.
 - **Тест:** Integration — нэвтрээгүй хүсэлт 401; profile автоматаар үүсэх; A нь B-ийн profile-ийг anon client-ээр уншиж чадахгүй, өөрийн profile-ийг шууд засаж чадахгүй; Origin шалгалт. Unit — чиглүүлэлтийн шийдвэр. E2E — OTP-ээр нэвтрэх → 18+ → гарах (local имэйл барих хэрэгслээр — шалгах шаардлагатай).
 
@@ -61,12 +63,12 @@
 
 ### M5 — Яриа (mock AI) + staging Supabase
 - **Зорилго:** FR-04-ийн өгөгдөл ба төлөвийн суурь, бодит AI-гүйгээр; staging орчин.
-- **Хүрээ:** `practice_sessions`, `messages`, `session_target_words` (missions-гүйгээр хоосон), `usage_counters`, `ai_usage_events` migration; DB функц `start_session`, `begin_user_turn`, `begin_retry`, `finish_user_turn`, `complete_session` (EXECUTE хаалттай); `AiProvider` интерфейс + `mock`; API (`/api/sessions*`, messages, retry, complete); `/talk/[sessionId]`, `/history` UI (Composer түгжээ, бүх төлөв); **staging Supabase төсөл + Vercel staging, CI-ээр migration deploy**.
+- **Хүрээ:** `practice_sessions`, `messages`, `session_target_words` (missions-гүйгээр хоосон), `usage_counters`, `ai_usage_events` migration; DB функц `start_session`, `begin_user_turn`, `begin_retry`, `finish_user_turn`, `complete_session` (EXECUTE хаалттай); `AiProvider` интерфейс + `mock`; API (`/api/sessions*`, messages, retry, complete); `/talk/[sessionId]`, `/history` UI (Composer түгжээ, бүх төлөв); **staging Supabase төсөл + Vercel staging, CI-ээр migration deploy**; staging Supabase-ийн Auth тохиргоо: **Email provider асаалттай (ON)**, **"Allow new users to sign up" унтраалттай (OFF)** — `[auth.email] enable_signup = false` нь email provider-ийг бүхэлд нь унтрааж OTP-г хаадаг тул ялгаатай хоёр унтраалга.
 - **Хүлээн авах шалгуур:** Ижил `clientMessageId` давхар мессеж/дуудлага үүсгэхгүй; `pending`/`reply_failed` үед шинэ мессеж блоклогдоно; хугацаа хэтэрсэн `pending` гацахгүй; 20 ээлжийн хязгаар; staging дээр mock-оор урсгал ажиллана.
 - **Тест:** Unit — `sendMessageSchema`. Integration — `testing.md §3` #1–6, #8–10, #12; зэрэг давхар хүсэлт; `authenticated`-аар DB функц дуудах оролдлого унах. Component — Composer disabled/loading/blocked/error.
 
 ### M6 — Бодит LLM, хязгаар, ажиглалт, eval dataset
-- **Орох нөхцөл:** Хоёр провайдерыг 20–30 жишээгээр (монгол тайлбарын чанар, зардал, хурд) харьцуулж сонгосон (`prd.md §10`).
+- **Орох нөхцөл:** Хоёр провайдерыг 20–30 жишээгээр (монгол тайлбарын чанар, зардал, хурд) харьцуулж сонгосон (`prd.md §10`); алдааны хяналтын хэрэгслийг сонгосон (M1-ээс хойшлогдсон).
 - **Зорилго:** FR-04 AI хариу, FR-10.
 - **Хүрээ:** Сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
 - **Хүлээн авах шалгуур:** Провайдер унахад мессеж хадгалагдсан гэж харагдаж "Дахин оролдох" ажиллана; 41 дэх хариу `DAILY_LIMIT_REACHED`; провайдерын түүхий алдаа client-д хүрэхгүй; монгол оролтын зан төлөв шийдэгдсэн.
@@ -110,7 +112,7 @@
 
 ### M13 — Бүртгэл устгах, нууцлалын бодлого, launch checklist
 - **Зорилго:** FR-09 устгал; pilot эхлүүлэх бэлэн байдал.
-- **Хүрээ:** `account_deletion_requests`, `POST /api/account/deletion-request`, `scripts/delete-account` (7 хоногийн дотор, admin); монгол хэлээр нууцлалын бодлого (хадгалах хугацаа, backup — шалгасан утгаар); launch checklist: production Supabase төсөл (Ази бүс), Vercel production, production SMTP, нийт өдрийн AI төсөв тохируулсан, провайдерын зардлын alert, урилгын жагсаалт, `prd.md §7` ба `trd.md §8`-ийн шалгуурыг бодитоор шалгаж тайлагнах, pilot хэмжүүрийн өгөгдөл цуглуулах арга шийдэгдсэн.
+- **Хүрээ:** `account_deletion_requests`, `POST /api/account/deletion-request`, `scripts/delete-account` (7 хоногийн дотор, admin); монгол хэлээр нууцлалын бодлого (хадгалах хугацаа, backup — шалгасан утгаар); launch checklist: production Supabase төсөл (Ази бүс; Auth тохиргоо: **Email provider асаалттай (ON)**, **"Allow new users to sign up" унтраалттай (OFF)** — `[auth.email] enable_signup = false` нь email provider-ийг бүхэлд нь унтрааж OTP-г хаадаг тул ялгаатай хоёр унтраалга), Vercel production, production SMTP, нийт өдрийн AI төсөв тохируулсан, провайдерын зардлын alert, урилгын жагсаалт, `prd.md §7` ба `trd.md §8`-ийн шалгуурыг бодитоор шалгаж тайлагнах, pilot хэмжүүрийн өгөгдөл цуглуулах арга шийдэгдсэн.
 - **Хүлээн авах шалгуур:** Устгалын дараа хэрэглэгчийн мөр үлдээгүй, `ai_usage_events.user_id = null`; `completed` болохоос өмнө "устгагдсан" гэж харуулахгүй; checklist-ийн бүх мөр шалгагдсан.
 - **Тест:** Integration — `testing.md §3` #23. E2E — E6, гол дэлгэцүүдийн axe. Гараар — bundle ба network хариунд нууц байхгүй, production header-ууд. Бүгд **шалгах шаардлагатай**.
 

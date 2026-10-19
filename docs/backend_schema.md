@@ -323,7 +323,7 @@ LLM-ээр утга үүсгэхгүй.
 
 - "2 удаа санасан" = **дараалсан** 2 `remembered`.
 - `new → active` шууд шилжилт зөвшөөрөгдөнө (ярианд 2 удаа зөв хэрэглэсэн).
-- `active` үг давталтын дараалалд үлдэнэ; `practice_again` нь `active` төлөвийг буцаахгүй.
+- `active` үг давталтын дараалалд үлдэнэ. `active` үг "Дахин давтах" (`practice_again`) авбал төлөв нь `active` хэвээр үлдэж, давталтын интервал нь **1 хоног** болж шинэчлэгдэнэ (`next_review_at = now() + 1 хоног`, `remembered_streak = 0`).
 - Шинэ үг хадгалмагц (`next_review_at = now()`) давталтад орно.
 
 ### 2.6 AI хэрэглээ ба хязгаар (зөвхөн сервер)
@@ -449,10 +449,13 @@ Supabase-ийн default privilege нь шинэ функцэд `anon`/`authentic
 
 ## 5. API
 
-Бүх endpoint нэвтрэлт шаардана, Zod-оор шалгана. Мутаци хүлээн авах endpoint бүр `Origin` header-ийг `NEXT_PUBLIC_SITE_URL`-тай тулгана (`security.md §6`). Server Actions MVP-д ашиглахгүй; уншдаг хуудсууд Server Component-оос service-ийг шууд дуудаж болно (D-02).
+`/api/auth/*`-аас бусад бүх endpoint нэвтрэлт шаардана (`401 UNAUTHENTICATED`). Бүгд Zod-оор шалгана. Мутаци хүлээн авах endpoint бүр `Origin` header-ийг `NEXT_PUBLIC_SITE_URL`-тай тулгана (`security.md §6`). Server Actions MVP-д ашиглахгүй; уншдаг хуудсууд Server Component-оос service-ийг шууд дуудаж болно (D-02).
 
 | Method | Path | Тайлбар |
 |---|---|---|
+| POST | `/api/auth/otp` | `{email}` → 6 оронтой код (урилгатай эсэхээс үл хамааран ижил хариу) |
+| POST | `/api/auth/verify` | `{email, code, next?}` → session cookie, `{redirectTo}` |
+| POST | `/api/auth/sign-out` | Энэ төхөөрөмжийн session-ийг дуусгана |
 | GET | `/api/today` | "Өнөөдөр" санал |
 | GET | `/api/path` | Сургалтын зам |
 | GET | `/api/sessions` | Өмнөх яриануудын жагсаалт `?cursor=` |
@@ -480,7 +483,7 @@ Supabase-ийн default privilege нь шинэ функцэд `anon`/`authentic
 ```json
 { "error": { "code": "DAILY_LIMIT_REACHED", "message_mn": "Өнөөдрийн хязгаар дууслаа", "retryable": false } }
 ```
-Үндсэн кодууд: `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_FAILED`, `MESSAGE_BLOCKED`, `IN_PROGRESS`, `TURN_LIMIT_REACHED`, `DAILY_LIMIT_REACHED`, `SESSION_NOT_ACTIVE`, `FEEDBACK_NOT_ELIGIBLE`, `FEEDBACK_ATTEMPTS_EXHAUSTED`, `AI_UNAVAILABLE`, `INTERNAL`.
+Үндсэн кодууд: `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_FAILED`, `MESSAGE_BLOCKED`, `IN_PROGRESS`, `TURN_LIMIT_REACHED`, `DAILY_LIMIT_REACHED`, `SESSION_NOT_ACTIVE`, `FEEDBACK_NOT_ELIGIBLE`, `FEEDBACK_ATTEMPTS_EXHAUSTED`, `AI_UNAVAILABLE`, `OTP_INVALID`, `TOO_MANY_REQUESTS`, `INTERNAL`.
 Stack trace, провайдерын түүхий алдааг client-д буцаахгүй.
 
 ## 6. Устгах ба хадгалах хугацаа

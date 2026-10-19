@@ -1,4 +1,8 @@
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+
+import { buttonVariants } from "@/components/ui/button";
+import { LOGIN_PATH } from "@/lib/auth/paths";
 
 const FEATURES = ["partner", "corrections", "missions", "path", "progress"] as const;
 
@@ -12,6 +16,9 @@ export default async function LandingPage() {
         <p className="text-sm font-medium text-primary">{t("brand")}</p>
         <h1 className="text-2xl font-semibold">{t("headline")}</h1>
         <p className="max-w-[70ch] text-base text-muted-foreground">{t("lead")}</p>
+        <Link href={LOGIN_PATH} className={buttonVariants({ className: "self-start" })}>
+          {t("signIn")}
+        </Link>
       </header>
 
       <section aria-labelledby="features-heading" className="flex flex-col gap-4">
