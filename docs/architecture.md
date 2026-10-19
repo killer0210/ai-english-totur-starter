@@ -50,8 +50,9 @@ src/
 ├── app/
 │   ├── (public)/  page.tsx  login/
 │   ├── (app)/     layout.tsx (session шаардлагатай)  age-confirmation/
-│   │   └── (gated)/  layout.tsx (18+ шаардлагатай; M3-аас онбординг)  home/  onboarding/  path/  talk/[sessionId]/  talk/[sessionId]/feedback/
-│   │              history/  words/  review/  progress/  settings/
+│   │   └── (gated)/  layout.tsx (18+ шаардлагатай)  onboarding/
+│   │       └── (onboarded)/  layout.tsx (онбординг дууссан байх; AppHeader)  home/  settings/  path/  talk/[sessionId]/
+│   │                         talk/[sessionId]/feedback/  history/  words/  review/  progress/
 │   └── api/       (backend_schema.md §5)
 ├── components/
 │   └── ui/                    # shadcn primitives

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 
+import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextRequest } from "next/server";
 
@@ -62,9 +63,36 @@ export async function findUserByEmail(email: string) {
   }
 }
 
-export function jsonRequest(path: string, body: unknown, headers: Record<string, string> = {}) {
+/**
+ * Signs in and returns the auth cookies exactly as @supabase/ssr writes them,
+ * as a Cookie header value — so Route Handlers see a real browser session.
+ */
+export async function sessionCookie(email: string, password: string): Promise<string> {
+  const jar = new Map<string, string>();
+  const client = createServerClient(env.supabaseUrl(), env.publishableKey(), {
+    cookies: {
+      getAll: () => [...jar].map(([name, value]) => ({ name, value })),
+      setAll: (cookies) => {
+        for (const { name, value } of cookies) {
+          if (value) jar.set(name, value);
+          else jar.delete(name);
+        }
+      },
+    },
+  });
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
+}
+
+export function jsonRequest(
+  path: string,
+  body: unknown,
+  headers: Record<string, string> = {},
+  method: "POST" | "PATCH" = "POST",
+) {
   return new NextRequest(new URL(path, env.siteUrl()), {
-    method: "POST",
+    method,
     headers: { "content-type": "application/json", origin: env.siteUrl(), ...headers },
     body: JSON.stringify(body),
   });

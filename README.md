@@ -71,6 +71,7 @@ npm run test:int                  # integration — local Supabase ажилла�
 npm run build
 npx playwright install chromium   # нэг удаа (Linux-д системийн сан дутвал: --with-deps)
 npm run test:e2e                  # production build + local Supabase
+                                  # :3000 завгүй бол: NEXT_PUBLIC_SITE_URL=http://localhost:3100 npm run build && E2E_PORT=3100 npm run test:e2e
 npm run check:contrast            # design token-ийн contrast хүснэгт
 npm run db:stop
 ```

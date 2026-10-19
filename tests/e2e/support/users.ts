@@ -17,6 +17,23 @@ export async function inviteUser(label: string) {
   return { id: data.user.id, email };
 }
 
+export async function setProfile(id: string, values: Record<string, unknown>) {
+  const { error } = await admin().from("profiles").update(values).eq("id", id);
+  if (error) throw error;
+}
+
+export async function readProfile(id: string) {
+  const { data, error } = await admin()
+    .from("profiles")
+    .select(
+      "english_level, goals, daily_minutes_goal, baseline_confidence, onboarding_completed_at",
+    )
+    .eq("id", id)
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function deleteUser(id: string) {
   await admin().auth.admin.deleteUser(id);
 }

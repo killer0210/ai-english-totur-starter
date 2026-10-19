@@ -474,9 +474,9 @@ Supabase-ийн default privilege нь шинэ функцэд `anon`/`authentic
 | GET | `/api/review/due` | Давталтын дараалал (≤ 10) |
 | POST | `/api/review/:wordId` | `{result}` |
 | GET | `/api/progress` | Самбар |
-| POST | `/api/onboarding` | Онбордингийн хариу + `onboarding_completed_at` |
+| POST | `/api/onboarding` | Онбордингийн хариу (дутуу хариу → default) + `onboarding_completed_at` (серверийн цаг; idempotent; 18+ шаардлагатай) |
 | POST | `/api/age-confirmation` | 18+ баталгаажуулалт (`age_confirmed_at`) |
-| PATCH | `/api/profile` | Тохиргоо (түвшин, зорилго, өдрийн минут) |
+| PATCH | `/api/profile` | Тохиргоо (түвшин, зорилго, өдрийн минут, `baseline_confidence`); өөр талбар → `400`, онбординг дуусаагүй → `403` |
 | POST | `/api/account/deletion-request` | Устгах хүсэлт |
 
 ### Алдааны формат

@@ -7,7 +7,9 @@ try {
   // No .env.local.
 }
 
-const PORT = 3000;
+// E2E_PORT lets a local run avoid a dev server already on :3000. The build must
+// use the same NEXT_PUBLIC_SITE_URL (it is inlined at build time).
+const PORT = Number(process.env.E2E_PORT ?? 3000);
 const BASE_URL = `http://localhost:${PORT}`;
 
 // Runs against the production build (`npm run build` first) and the local

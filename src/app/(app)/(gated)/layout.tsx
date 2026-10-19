@@ -5,8 +5,8 @@ import { AGE_CONFIRMATION_PATH, LOGIN_PATH } from "@/lib/auth/paths";
 import { getSessionUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
-// Pages that need the 18+ confirmation (docs/app_flow.md §2). The onboarding
-// check joins here in M3.
+// Pages that need the 18+ confirmation (docs/app_flow.md §2): /onboarding and,
+// through the nested (onboarded) group, every page after onboarding.
 export default async function GatedLayout({ children }: LayoutProps<"/">) {
   const supabase = await createClient();
   const user = await getSessionUser(supabase);

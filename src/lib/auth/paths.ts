@@ -3,6 +3,8 @@
 export const LOGIN_PATH = "/login";
 export const AGE_CONFIRMATION_PATH = "/age-confirmation";
 export const HOME_PATH = "/home";
+export const ONBOARDING_PATH = "/onboarding";
+export const SETTINGS_PATH = "/settings";
 
 const PUBLIC_PATHS = new Set(["/", LOGIN_PATH]);
 

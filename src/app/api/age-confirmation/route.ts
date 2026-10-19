@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { confirmAge } from "@/features/profile/data";
-import { HOME_PATH } from "@/lib/auth/paths";
+import { ONBOARDING_PATH } from "@/lib/auth/paths";
 import { ageConfirmationSchema } from "@/lib/auth/schemas";
 import { requireUser } from "@/lib/auth/session";
 import { mutation } from "@/lib/route";
@@ -12,5 +12,5 @@ export const POST = mutation(ageConfirmationSchema, async (_input, request) => {
   const { supabase, withCookies } = createRouteClient(request);
   const user = await requireUser(supabase);
   await confirmAge(user.id);
-  return withCookies(NextResponse.json({ redirectTo: HOME_PATH }));
+  return withCookies(NextResponse.json({ redirectTo: ONBOARDING_PATH }));
 });
