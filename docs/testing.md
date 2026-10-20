@@ -128,6 +128,10 @@ npm run db:stop
 
 Integration тест нь Route Handler-ийг (`POST`) `NextRequest`-ээр шууд дуудаж, RLS-ийг publishable түлхүүртэй client-ээр (browser-ийн чадах зүйл) шалгана. Тест хэрэглэгчид нууц үгтэй (зөвхөн тест тохиргоо); апп өөрөө зөвхөн OTP санал болгоно. E2E нь OTP кодыг local имэйл барих серверээс (`MAIL_CATCHER_URL`, порт 54324) уншина — API нь Mailpit эсвэл Inbucket эсэхийг **шалгах шаардлагатай** (хоёуланг оролдоно).
 
+Auth rate limit: integration + E2E нэг ажиллалтад ~20 нэвтрэлт хийдэг тул `supabase/config.toml`-ийн `[auth.rate_limit]` дахь `sign_in_sign_ups`, `token_verifications`-ийг 30-аас 300 (5 минутад, IP тутам) болгосон. Энэ нь зөвхөн local/CI стект хамаарна — hosted Supabase төсөл өөрийн dashboard-ын тохиргоог хэрэглэнэ; production-ий хязгаарыг тэнд тусад нь тохируулна.
+
+Playwright хэзээ ч байгаа сервер дээр дахин ашиглахгүй (`reuseExistingServer: false`): порт завгүй бол "is already used" алдаагаар зогсоно. Тэр серверийг зогсоох эсвэл `E2E_PORT` (ба тохирох `NEXT_PUBLIC_SITE_URL`-тэй build) ашигла.
+
 ## 7. CI
 
 ```

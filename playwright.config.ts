@@ -30,7 +30,10 @@ export default defineConfig({
   webServer: {
     command: `npm run start -- --port ${PORT}`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse a server already on the port: it may be a dev server or a
+    // stale build with other env. Playwright then fails with "<url> is already
+    // used"; stop that server or pick another E2E_PORT.
+    reuseExistingServer: false,
     timeout: 60_000,
     env: {
       ...(process.env as Record<string, string>),
