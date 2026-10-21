@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "exchange-programme-interview",
+  "english_level": "B1",
+  "unit_position": 1,
+  "position": 3,
+  "title_mn": "Солилцооны хөтөлбөрийн ярилцлага",
+  "goal_mn": "Гадаадад суралцахыг яагаад хүсэж байгаа, юунд бэлэн байгаагаа жишээтэй тайлбарлах.",
+  "ai_role": "admissions officer",
+  "user_role": "student applicant",
+  "role_context": "You are an admissions officer for a university student exchange programme. Interview the learner: ask why they want to study abroad, what they want to study, how they will handle challenges, and what they can share with other students. Ask for examples. Be warm and professional.",
+  "intro_en": "Hello, and welcome to the interview for our student exchange programme. We'd like to get to know you a little better. First, why would you like to study abroad?",
+  "words": [
+    {
+      "term": "study abroad",
+      "meaning_mn": "гадаадад суралцах",
+      "example_en": "I'd like to study abroad for one semester."
+    },
+    {
+      "term": "improve",
+      "meaning_mn": "сайжруулах",
+      "example_en": "I want to improve my English and my confidence."
+    },
+    {
+      "term": "challenge",
+      "meaning_mn": "сорилт, бэрхшээл",
+      "example_en": "Living alone will be a challenge, but I'm ready."
+    },
+    {
+      "term": "culture",
+      "meaning_mn": "соёл",
+      "example_en": "I'd like to learn about a new culture."
+    },
+    {
+      "term": "adapt to",
+      "meaning_mn": "... -д дасан зохицох",
+      "example_en": "I can adapt to new situations quickly."
+    }
+  ]
+}

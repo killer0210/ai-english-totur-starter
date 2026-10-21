@@ -50,7 +50,12 @@ create table profiles (
 
 ### 2.2 Агуулга (зөвхөн агуулгын скрипт / service role бичнэ)
 
-Агуулгын эх сурвалж нь `content/scenarios/*.json`; Zod-оор шалгаад `slug`-аар idempotent upsert хийнэ (local ба production-д ижил скрипт). Session-д ашиглагдсан сценарийг устгахгүй — `is_active = false`.
+Агуулгын эх сурвалж нь `content/units.json` ба `content/scenarios/<slug>.json` (`src/features/path/content-schema.ts`-ийн Zod схемээр шалгана); `npm run content:sync` (`scripts/upsert-content.mts`, service role) нь idempotent upsert хийнэ (local ба production-д ижил скрипт; `db:reset` мөн үүнийг дууддаг). Хэрэгжүүлэлт (M4):
+- Түлхүүр: сценари — `slug`; бүлэг — `(english_level, position)` (бүлэгт `slug` байхгүй). Өөрчлөгдөөгүй мөрийг бичихгүй — хоёр дахь ажиллалт юу ч өөрчлөхгүй.
+- Хэзээ ч устгахгүй: файлаас хасагдсан бүлэг/сценари → `is_active = false`. `unique (unit_id, position)` идэвхгүй мөрд ч хамаарах тул байрлалаа шинэ сценарид шилжүүлэх идэвхгүй сценари тухайн бүлгийн сөрөг байрлал руу шилжинэ.
+- DB-д байгаа сценариас үг хасагдвал sync бичилт хийхээс өмнө алдаагаар зогсоно (M9-ийн `session_target_words` холбоосыг эвдэхгүйн тулд); хасах бол тусдаа migration.
+- Pilot: түвшин тутамд **1 бүлэг** (баримтад бүлгийн тоо заагаагүй). `review_status` (`draft`/`reviewed`) нь зөвхөн файлд; DB-д хадгалахгүй. Багшийн хяналтын хүснэгт: `docs/content_review.md` (`npm run content:review`).
+- RLS: сценари нь бүлэг нь идэвхтэй үед, үг нь сценари (ба бүлэг) нь идэвхтэй үед л харагдана; `anon`-д эрх байхгүй.
 
 ```sql
 create table units (

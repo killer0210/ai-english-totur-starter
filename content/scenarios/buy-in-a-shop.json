@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "buy-in-a-shop",
+  "english_level": "A1",
+  "unit_position": 1,
+  "position": 3,
+  "title_mn": "Дэлгүүрээс юм худалдаж авах",
+  "goal_mn": "Хайж буй зүйлээ хэлж, хэмжээ асууж, өмсөж үзээд төлбөрөө төлөх.",
+  "ai_role": "shop assistant",
+  "user_role": "customer",
+  "role_context": "You are a helpful shop assistant in a small clothes shop. Help the learner find what they want, ask about size and colour, offer the fitting room, and help them pay. Use very short, simple sentences.",
+  "intro_en": "Hi there! Welcome to our shop. Can I help you?",
+  "words": [
+    {
+      "term": "I'm looking for",
+      "meaning_mn": "би ... хайж байна",
+      "example_en": "I'm looking for a T-shirt."
+    },
+    {
+      "term": "size",
+      "meaning_mn": "хэмжээ, размер",
+      "example_en": "Do you have this in a small size?"
+    },
+    {
+      "term": "try on",
+      "meaning_mn": "өмсөж үзэх",
+      "example_en": "Can I try it on?"
+    },
+    {
+      "term": "cheap",
+      "meaning_mn": "хямд",
+      "example_en": "This bag is cheap."
+    },
+    {
+      "term": "pay by card",
+      "meaning_mn": "картаар төлөх",
+      "example_en": "Can I pay by card?"
+    }
+  ]
+}

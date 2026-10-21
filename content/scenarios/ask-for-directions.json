@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "ask-for-directions",
+  "english_level": "A1",
+  "unit_position": 1,
+  "position": 4,
+  "title_mn": "Зам асуух",
+  "goal_mn": "Хүссэн газар руугаа хэрхэн очихыг эелдгээр асууж, зааврыг ойлгосноо батлах.",
+  "ai_role": "passer-by",
+  "user_role": "visitor in a new city",
+  "role_context": "You are a kind local person on a street in the city centre. The learner asks you for directions to a place (bank, station, museum, café). Give simple directions with left, right, straight and near. Repeat if they ask. Use very short, simple sentences.",
+  "intro_en": "Hi! You look a little lost. Can I help you?",
+  "words": [
+    {
+      "term": "excuse me",
+      "meaning_mn": "уучлаарай (хүний анхаарлыг татах)",
+      "example_en": "Excuse me, where is the bank?"
+    },
+    {
+      "term": "where is",
+      "meaning_mn": "... хаана байна вэ?",
+      "example_en": "Where is the train station?"
+    },
+    {
+      "term": "turn left",
+      "meaning_mn": "зүүн тийш эргэх",
+      "example_en": "Turn left at the park."
+    },
+    {
+      "term": "go straight",
+      "meaning_mn": "чигээрээ явах",
+      "example_en": "Go straight for two minutes."
+    },
+    {
+      "term": "near",
+      "meaning_mn": "ойрхон, дэргэд",
+      "example_en": "The museum is near the station."
+    }
+  ]
+}

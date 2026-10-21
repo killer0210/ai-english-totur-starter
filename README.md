@@ -41,6 +41,7 @@ npm ci
 cp .env.example .env.local
 npm run db:start              # local Supabase (migration, auth тохиргоо)
 npm run --silent db:env >> .env.local
+npm run content:sync          # content/ → units, scenarios, scenario_words (idempotent)
 ```
 
 `.env.local`-д дараах M1 утгуудыг нэмнэ (Supabase-ийн утгуудыг дээрх тушаал бичнэ):
@@ -73,6 +74,8 @@ npx playwright install chromium   # нэг удаа (Linux-д системийн
 npm run test:e2e                  # production build + local Supabase
                                   # :3000 завгүй бол: NEXT_PUBLIC_SITE_URL=http://localhost:3100 npm run build && E2E_PORT=3100 npm run test:e2e
 npm run check:contrast            # design token-ийн contrast хүснэгт
+npm run content:review            # docs/content_review.md-г content/-оос дахин үүсгэнэ
+npm run db:reset                  # DB-г цэвэрлээд агуулгыг дахин sync хийнэ
 npm run db:stop
 ```
 

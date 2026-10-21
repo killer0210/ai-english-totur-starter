@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "job-interview",
+  "english_level": "B1",
+  "unit_position": 1,
+  "position": 1,
+  "title_mn": "Ажлын ярилцлага",
+  "goal_mn": "Өөрийн туршлага, давуу талаа жишээтэй тайлбарлаж, яагаад энэ ажилд орохыг хүсэж байгаагаа хэлэх.",
+  "ai_role": "interviewer",
+  "user_role": "job candidate",
+  "role_context": "You are Ms. Lee, an interviewer at a mid-sized company hiring for an office assistant position. Ask common interview questions one at a time: about the candidate, their experience, strengths, a difficult situation, and why they want the job. Ask a short follow-up when an answer is vague. Be professional and encouraging.",
+  "intro_en": "Good morning, and thank you for coming in today. I've had a look at your CV. To start, could you tell me a little about yourself?",
+  "words": [
+    {
+      "term": "experience",
+      "meaning_mn": "туршлага",
+      "example_en": "I have two years of experience in sales."
+    },
+    {
+      "term": "strength",
+      "meaning_mn": "давуу тал",
+      "example_en": "One of my strengths is working in a team."
+    },
+    {
+      "term": "responsible for",
+      "meaning_mn": "... хариуцах",
+      "example_en": "I was responsible for customer support."
+    },
+    {
+      "term": "apply for",
+      "meaning_mn": "... -д өргөдөл гаргах",
+      "example_en": "I applied for this job because I enjoy working with people."
+    },
+    {
+      "term": "deal with",
+      "meaning_mn": "шийдвэрлэх, зохицуулах",
+      "example_en": "I can deal with difficult customers calmly."
+    }
+  ]
+}

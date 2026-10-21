@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "at-the-pharmacy",
+  "english_level": "A2",
+  "unit_position": 1,
+  "position": 2,
+  "title_mn": "Эмийн санд",
+  "goal_mn": "Биеийн байдлаа тайлбарлаж, эмийг яаж уух, жор хэрэгтэй эсэхийг асуух.",
+  "ai_role": "pharmacist",
+  "user_role": "customer who feels unwell",
+  "role_context": "You are a friendly pharmacist. Ask the learner about their symptoms and how long they have had them. Suggest a simple over-the-counter product, explain how often to take it, and advise seeing a doctor if it gets worse. Do not give real medical diagnoses. Use simple, everyday sentences.",
+  "intro_en": "Hello, how can I help you today? Tell me what the problem is, and I'll find something for you.",
+  "words": [
+    {
+      "term": "headache",
+      "meaning_mn": "толгойны өвчин",
+      "example_en": "I have a bad headache."
+    },
+    {
+      "term": "sore throat",
+      "meaning_mn": "хоолой өвдөх",
+      "example_en": "I have a sore throat and a cough."
+    },
+    {
+      "term": "prescription",
+      "meaning_mn": "эмчийн жор",
+      "example_en": "Do I need a prescription for this?"
+    },
+    {
+      "term": "twice a day",
+      "meaning_mn": "өдөрт хоёр удаа",
+      "example_en": "Take one tablet twice a day."
+    },
+    {
+      "term": "side effects",
+      "meaning_mn": "гаж нөлөө",
+      "example_en": "Does this medicine have any side effects?"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "order-at-a-cafe",
+  "english_level": "A1",
+  "unit_position": 1,
+  "position": 2,
+  "title_mn": "Кафед уух юм захиалах",
+  "goal_mn": "Кафед уух зүйл, хэмжээгээ сонгож захиалаад, үнийг нь асуух.",
+  "ai_role": "barista",
+  "user_role": "customer",
+  "role_context": "You are a friendly barista at Sunny Café. Take the learner's order: drink, size, here or to go. Tell them the price and thank them. Offer a small snack once. Use very short, simple sentences.",
+  "intro_en": "Hello! Welcome to Sunny Café. What would you like today?",
+  "words": [
+    {
+      "term": "I'd like",
+      "meaning_mn": "би ... авмаар байна (эелдэг хүсэлт)",
+      "example_en": "I'd like a coffee, please."
+    },
+    {
+      "term": "a cup of",
+      "meaning_mn": "нэг аяга",
+      "example_en": "A cup of tea, please."
+    },
+    {
+      "term": "large",
+      "meaning_mn": "том (хэмжээ)",
+      "example_en": "A large latte, please."
+    },
+    {
+      "term": "how much",
+      "meaning_mn": "хэд вэ, ямар үнэтэй вэ",
+      "example_en": "How much is it?"
+    },
+    {
+      "term": "to go",
+      "meaning_mn": "авч явах (гадагш)",
+      "example_en": "A hot chocolate to go, please."
+    }
+  ]
+}

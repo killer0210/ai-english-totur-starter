@@ -81,8 +81,8 @@ src/
 ├── i18n/request.ts            # next-intl, routing-гүй, locale = mn
 └── proxy.ts                   # хүсэлт бүрт CSP nonce (Next.js 16-ийн middleware)
 messages/mn.json               # UI текст (repo root)
-content/scenarios/*.json       # сценарийн агуулга (D-11)
-scripts/                       # upsert-content, invite-users, delete-account
+content/units.json, scenarios/*.json  # агуулга (D-11), npm run content:sync
+scripts/                       # upsert-content, content-review, invite-users, delete-account
 supabase/  config.toml  migrations/  templates/   # local Supabase (auth тохиргоо, OTP имэйл)
 tests/     unit/  integration/  e2e/  evals/  factories/
 docs/

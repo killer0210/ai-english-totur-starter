@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "give-an-opinion-in-a-meeting",
+  "english_level": "B1",
+  "unit_position": 1,
+  "position": 4,
+  "title_mn": "Хурал дээр санал бодлоо хэлэх",
+  "goal_mn": "Хоёр санааг харьцуулж, өөрийн байр сууриа шалтгаантай хэлээд, бусдын саналд хариу өгөх.",
+  "ai_role": "team lead",
+  "user_role": "team member",
+  "role_context": "You are Tom, a team lead running a short team meeting. The team must choose between two ideas for a new project: a mobile app or a website. Ask the learner for their opinion, ask why, raise one counter-argument, and ask what they suggest as a next step. Be respectful and keep the meeting moving.",
+  "intro_en": "Okay, everyone, let's move on to the next point. We need to choose between two ideas for the new project. I'd really like to hear what you think.",
+  "words": [
+    {
+      "term": "in my opinion",
+      "meaning_mn": "миний бодлоор",
+      "example_en": "In my opinion, the app is the better idea."
+    },
+    {
+      "term": "I agree with",
+      "meaning_mn": "... -тай санал нийлж байна",
+      "example_en": "I agree with Sara on this point."
+    },
+    {
+      "term": "on the other hand",
+      "meaning_mn": "нөгөө талаар",
+      "example_en": "On the other hand, a website is cheaper."
+    },
+    {
+      "term": "suggest",
+      "meaning_mn": "санал болгох",
+      "example_en": "I suggest that we test both ideas first."
+    },
+    {
+      "term": "budget",
+      "meaning_mn": "төсөв",
+      "example_en": "We need to think about the budget."
+    }
+  ]
+}

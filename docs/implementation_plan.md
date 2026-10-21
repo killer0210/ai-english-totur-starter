@@ -62,6 +62,7 @@
 - **Хүрээ:** `units`, `scenarios`, `scenario_words` migration + SELECT RLS; `content/scenarios/*.json` + Zod + `scripts/upsert-content` (idempotent, `slug`-аар); **12 сценари (түвшин тутамд 4), багшийн хянасан** (агуулга бичих ажил энэ milestone-тэй зэрэг); `/path`, `ScenarioCard`; `nextScenario()` цэвэр функц.
 - **Хүлээн авах шалгуур:** Хэрэглэгч өөрийн түвшний зам ба бүх сценарийг харна; түгжээгүй; скриптийг хоёр удаа ажиллуулахад өөрчлөлтгүй.
 - **Тест:** Unit — агуулгын схем (3–6 үг, утга заавал, `intro_en`), `nextScenario()` (бүгд дууссан тохиолдол). Integration — хэрэглэгч агуулга бичиж чадахгүй; `is_active = false` харагдахгүй; upsert idempotent.
+- **Төлөв (2026-10-21):** Хэрэгжсэн; `npm run verify` local дээр давсан (CI: unavailable (billing)). **Агуулга `review_status: "draft"`** — багшийн хяналт (`docs/content_review.md`) хүлээгдэж байна; хянагдах хүртэл "багшийн хянасан" шалгуур биелээгүй. Түвшин тутамд 1 бүлэг. "Хийсэн" төлөв M5-ийн `practice_sessions`-оос хойш харагдана; `GET /api/path` хэрэгжээгүй (хуудас Server Component-оос уншина, D-02).
 
 ### M5 — Яриа (mock AI) + staging Supabase
 - **Зорилго:** FR-04-ийн өгөгдөл ба төлөвийн суурь, бодит AI-гүйгээр; staging орчин.

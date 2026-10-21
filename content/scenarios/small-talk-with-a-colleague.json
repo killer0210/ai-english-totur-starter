@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "small-talk-with-a-colleague",
+  "english_level": "A2",
+  "unit_position": 1,
+  "position": 4,
+  "title_mn": "Хамт ажилладаг хүнтэйгээ чөлөөтэй ярилцах",
+  "goal_mn": "Амралтын өдөр, ажлын долоо хоногийн талаар богино яриа өрнүүлж, хариу асуулт асуух.",
+  "ai_role": "colleague",
+  "user_role": "colleague at the office",
+  "role_context": "You are Sara, a friendly colleague. It is Monday morning in the office kitchen. Make small talk about the weekend, the week ahead and lunch plans. Ask follow-up questions and share a little about yourself. Use simple, everyday sentences.",
+  "intro_en": "Morning! How was your weekend? Did you do anything fun?",
+  "words": [
+    {
+      "term": "weekend",
+      "meaning_mn": "амралтын өдрүүд (бямба, ням)",
+      "example_en": "I visited my family at the weekend."
+    },
+    {
+      "term": "how about you",
+      "meaning_mn": "та харин? (асуултыг буцааж асуух)",
+      "example_en": "I'm fine, thanks. How about you?"
+    },
+    {
+      "term": "busy",
+      "meaning_mn": "завгүй",
+      "example_en": "This week is really busy."
+    },
+    {
+      "term": "lunch break",
+      "meaning_mn": "үдийн завсарлага",
+      "example_en": "Let's get coffee in the lunch break."
+    },
+    {
+      "term": "by the way",
+      "meaning_mn": "дашрамд хэлэхэд",
+      "example_en": "By the way, did you see the new office?"
+    }
+  ]
+}

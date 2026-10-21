@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "talk-to-a-teacher",
+  "english_level": "A2",
+  "unit_position": 1,
+  "position": 3,
+  "title_mn": "Багштай даалгаврын талаар ярилцах",
+  "goal_mn": "Даалгаврын талаар асуулт асууж, ойлгоогүй зүйлээ тайлбарлуулж, шаардлагатай бол хугацаа сунгуулах хүсэлт гаргах.",
+  "ai_role": "teacher",
+  "user_role": "student",
+  "role_context": "You are Mr. Brown, a patient teacher. The learner comes to your office to talk about an essay assignment. Answer their questions about the topic, length and deadline. If they ask politely and give a reason, you can give a short extension. Use simple, everyday sentences.",
+  "intro_en": "Hi, come in. You wanted to talk about the essay, right? How is it going?",
+  "words": [
+    {
+      "term": "assignment",
+      "meaning_mn": "даалгавар",
+      "example_en": "I have a question about the assignment."
+    },
+    {
+      "term": "deadline",
+      "meaning_mn": "эцсийн хугацаа",
+      "example_en": "When is the deadline?"
+    },
+    {
+      "term": "extension",
+      "meaning_mn": "хугацаа сунгалт",
+      "example_en": "Could I have an extension until Monday?"
+    },
+    {
+      "term": "I'm not sure how to",
+      "meaning_mn": "... яаж хийхээ сайн мэдэхгүй байна",
+      "example_en": "I'm not sure how to start the essay."
+    },
+    {
+      "term": "explain",
+      "meaning_mn": "тайлбарлах",
+      "example_en": "Could you explain the topic again?"
+    }
+  ]
+}

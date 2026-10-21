@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "delayed-flight",
+  "english_level": "B1",
+  "unit_position": 1,
+  "position": 2,
+  "title_mn": "Нислэг хойшилсон үед",
+  "goal_mn": "Нислэг хойшилсон нөхцөлд асуудлаа тайлбарлаж, өөр сонголт, тусламж эелдгээр хүсэх.",
+  "ai_role": "airline agent",
+  "user_role": "passenger",
+  "role_context": "You are an airline agent at the airport desk. The learner's flight to Seoul is delayed by about four hours because of the weather. Explain the situation, answer questions, and offer options: waiting, rebooking on a later flight, or a meal voucher. Stay calm and polite, even if the passenger is upset.",
+  "intro_en": "Hello, I'm sorry for the wait. Your flight to Seoul has been delayed by about four hours because of the weather. How can I help you?",
+  "words": [
+    {
+      "term": "delayed",
+      "meaning_mn": "хойшилсон, саатсан",
+      "example_en": "My flight has been delayed."
+    },
+    {
+      "term": "connecting flight",
+      "meaning_mn": "дамжин нисэх дараагийн нислэг",
+      "example_en": "I'm worried I'll miss my connecting flight."
+    },
+    {
+      "term": "rebook",
+      "meaning_mn": "өөр нислэгт шилжүүлж захиалах",
+      "example_en": "Can you rebook me on a later flight?"
+    },
+    {
+      "term": "boarding pass",
+      "meaning_mn": "онгоцонд суух тасалбар",
+      "example_en": "Here is my boarding pass."
+    },
+    {
+      "term": "meal voucher",
+      "meaning_mn": "хоолны эрхийн бичиг",
+      "example_en": "Could I get a meal voucher while I wait?"
+    }
+  ]
+}

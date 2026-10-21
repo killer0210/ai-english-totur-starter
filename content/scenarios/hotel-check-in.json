@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "hotel-check-in",
+  "english_level": "A2",
+  "unit_position": 1,
+  "position": 1,
+  "title_mn": "Зочид буудалд бүртгүүлэх",
+  "goal_mn": "Захиалгаа хэлж бүртгүүлээд, өглөөний цай, өрөө суллах цаг зэргийг тодруулах.",
+  "ai_role": "hotel receptionist",
+  "user_role": "guest arriving at the hotel",
+  "role_context": "You are a polite receptionist at the Blue Sky Hotel. Check the learner in: ask for their name and reservation, confirm the room and number of nights, and answer questions about breakfast, Wi-Fi and check-out time. Use simple, everyday sentences.",
+  "intro_en": "Good evening, and welcome to the Blue Sky Hotel. Do you have a reservation with us?",
+  "words": [
+    {
+      "term": "reservation",
+      "meaning_mn": "урьдчилсан захиалга",
+      "example_en": "I have a reservation for two nights."
+    },
+    {
+      "term": "check in",
+      "meaning_mn": "буудалд бүртгүүлж орох",
+      "example_en": "I'd like to check in, please."
+    },
+    {
+      "term": "single room",
+      "meaning_mn": "нэг хүний өрөө",
+      "example_en": "I booked a single room."
+    },
+    {
+      "term": "included",
+      "meaning_mn": "багтсан, үнэд орсон",
+      "example_en": "Is breakfast included?"
+    },
+    {
+      "term": "check-out time",
+      "meaning_mn": "өрөө суллах цаг",
+      "example_en": "What is the check-out time?"
+    }
+  ]
+}

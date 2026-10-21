@@ -124,6 +124,13 @@ npm run db:env          # Supabase env-ийг хэвлэнэ (>> .env.local)
 npm run test:int        # Vitest, tests/integration (RLS, trigger, route handler)
 npm run db:stop
 ```
+M4-өөс:
+```bash
+npm run content:sync    # content/ → DB (idempotent, хэзээ ч устгахгүй)
+npm run content:review  # docs/content_review.md-г дахин үүсгэнэ
+npm run db:reset        # supabase db reset && content:sync
+```
+Агуулгын integration тест (`tests/integration/content.test.ts`) нь бодит sync-ийг тогтмол `int-*` slug-тай тестийн сценаригаар ажиллуулж, тест бүрийн төгсгөлд `content/`-ийг дахин sync хийнэ; тестийн мөрүүд идэвхгүй хэвээр үлдэнэ. E2E-ийн `globalSetup` (`tests/e2e/global-setup.ts`) мөн `content/`-ийг sync хийнэ.
 Бүх CI шалгалтыг local-д (CI-ийн дараалал, орчинтой ижил):
 ```bash
 npm run verify          # scripts/verify.sh — эхний алдаан дээр зогсож, хураангуй хүснэгт хэвлэнэ

@@ -16,6 +16,7 @@ const BASE_URL = `http://localhost:${PORT}`;
 // Supabase stack (`npm run db:start`).
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",

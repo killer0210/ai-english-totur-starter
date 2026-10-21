@@ -1,0 +1,40 @@
+{
+  "review_status": "draft",
+  "slug": "introduce-yourself",
+  "english_level": "A1",
+  "unit_position": 1,
+  "position": 1,
+  "title_mn": "Шинэ ангийнхантайгаа танилцах",
+  "goal_mn": "Өөрийгөө танилцуулж, нэр, хаанаас ирснээ хэлээд, нөгөө хүнээс энгийн асуулт асуух.",
+  "ai_role": "new classmate",
+  "user_role": "student on the first day of class",
+  "role_context": "You are Emma, a friendly new classmate on the first day of an English class. Ask the learner simple questions about their name, where they are from and what they like. Answer their questions about you. Use very short, simple sentences and common words.",
+  "intro_en": "Hi! I'm Emma. I'm new in this class. What's your name?",
+  "words": [
+    {
+      "term": "my name is",
+      "meaning_mn": "миний нэр ... (өөрийгөө танилцуулах)",
+      "example_en": "My name is Bat."
+    },
+    {
+      "term": "I'm from",
+      "meaning_mn": "би ...-аас ирсэн",
+      "example_en": "I'm from Mongolia."
+    },
+    {
+      "term": "nice to meet you",
+      "meaning_mn": "танилцсандаа таатай байна",
+      "example_en": "Nice to meet you, Emma."
+    },
+    {
+      "term": "classmate",
+      "meaning_mn": "ангийн хүүхэд, ангийнхан",
+      "example_en": "She is my new classmate."
+    },
+    {
+      "term": "hobby",
+      "meaning_mn": "хобби, чөлөөт цагийн сонирхол",
+      "example_en": "My hobby is music."
+    }
+  ]
+}
