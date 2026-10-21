@@ -124,6 +124,13 @@ npm run db:env          # Supabase env-ийг хэвлэнэ (>> .env.local)
 npm run test:int        # Vitest, tests/integration (RLS, trigger, route handler)
 npm run db:stop
 ```
+Бүх CI шалгалтыг local-д (CI-ийн дараалал, орчинтой ижил):
+```bash
+npm run verify          # scripts/verify.sh — эхний алдаан дээр зогсож, хураангуй хүснэгт хэвлэнэ
+E2E_PORT=3100 npm run verify   # :3000 завгүй бол
+```
+Дараалал: lint → format:check → typecheck → test → check:contrast → gitleaks (git түүх, CI-ийн тохиргоо) → test:int → build → test:e2e. `gitleaks` суулгаагүй бол алгасахгүй, суулгах заавар хэвлээд унана (CI-ийн хувилбар 8.30.1). test:int-ээс өмнө local Supabase ажиллаж байгааг, test:e2e-ээс өмнө `E2E_PORT` чөлөөтэй эсэхийг шалгана. `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:$E2E_PORT`-ийг өөрөө тохируулна. Bash ≥ 4 шаардлагатай.
+
 Дараа нэмэгдэх: `eval` (M6). Тохируулаагүй скриптийг байгаа мэт бүү бич.
 
 Integration тест нь Route Handler-ийг (`POST`) `NextRequest`-ээр шууд дуудаж, RLS-ийг publishable түлхүүртэй client-ээр (browser-ийн чадах зүйл) шалгана. Тест хэрэглэгчид нууц үгтэй (зөвхөн тест тохиргоо); апп өөрөө зөвхөн OTP санал болгоно. E2E нь OTP кодыг local имэйл барих серверээс (`MAIL_CATCHER_URL`, порт 54324) уншина — API нь Mailpit эсвэл Inbucket эсэхийг **шалгах шаардлагатай** (хоёуланг оролдоно).
@@ -135,11 +142,17 @@ Playwright хэзээ ч байгаа сервер дээр дахин ашиг�
 ## 7. CI
 
 ```
-secret scan → lint → typecheck → unit + component → integration (Supabase local, RLS шалгалт) → build → e2e (mock AI) → (prompt өөрчлөгдсөн бол) eval
+secret scan ‖ lint → format → typecheck → unit + component → contrast → integration (Supabase local, RLS шалгалт) → build → e2e (mock AI) → (prompt өөрчлөгдсөн бол) eval
 ```
+
+**Одоогийн төлөв: GitHub Actions ашиглах боломжгүй (account billing lock).** Засагдах хүртэл:
+- CI-ийн оронд `npm run verify`-г local-д ажиллуулна; энэ нь `.github/workflows/ci.yml`-тэй ижил алхам, дараалалтай (хоёуланг нь хамт шинэчил).
+- Milestone-ийн тайлан бүр `npm run verify`-ийн бүрэн хураангуй хүснэгтийг агуулна.
+- CI-ийн төлвийг **"unavailable (billing)"** гэж бичнэ, "passed" гэж хэзээ ч биш.
+- Workflow-ийг өөрчлөхгүй үлдээсэн тул billing засагдмагц CI шууд ажиллана; тэгэхэд энэ хэсгийг хасна.
 Migration main branch-д merge хийгдэхэд staging Supabase-д deploy хийгдэнэ (M5-аас).
 
-CI-ийн орчин: `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Secret scan тусдаа job-оор зэрэг ажиллана. Одоогийн (M1) алхам: `.github/workflows/ci.yml`.
+CI-ийн орчин: `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Secret scan тусдаа job-оор зэрэг ажиллана. Алхмууд: `.github/workflows/ci.yml` (runner `ubuntu-24.04`-д бэхэлсэн).
 Бүгд ногоон байж байж merge хийнэ. E2E унавал trace хадгална.
 
 ## 8. Тестийн өгөгдөл
@@ -156,3 +169,4 @@ CI-ийн орчин: `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=
 - [ ] Нууц commit хийгдээгүй
 - [ ] Шийдвэр өөрчлөгдсөн бол баримт шинэчлэгдсэн
 - [ ] Тайланд ажиллуулсан командууд ба үлдсэн хязгаарлалт бичигдсэн
+- [ ] CI байхгүй үед: `npm run verify` бүхэлдээ давж, хураангуй нь тайланд орсон; CI = "unavailable (billing)"

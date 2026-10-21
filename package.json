@@ -17,6 +17,7 @@
     "test:e2e": "playwright test",
     "check:contrast": "node scripts/check-contrast.mjs",
     "test:int": "vitest run --config vitest.integration.config.mts",
+    "verify": "bash scripts/verify.sh",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",

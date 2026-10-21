@@ -76,7 +76,7 @@ npm run check:contrast            # design token-ийн contrast хүснэгт
 npm run db:stop
 ```
 
-`eval` (M6) скрипт тухайн milestone-д нэмэгдэнэ. CI (`.github/workflows/ci.yml`): secret scan (gitleaks) ‖ Supabase start → lint → typecheck → test → build → integration → e2e.
+`eval` (M6) скрипт тухайн milestone-д нэмэгдэнэ. CI (`.github/workflows/ci.yml`): secret scan (gitleaks) ‖ Supabase start → lint → typecheck → test → contrast → integration → build → e2e. GitHub Actions одоогоор billing-ээр түгжигдсэн тул ижил шалгалтыг `npm run verify`-гаар local-д ажиллуулна (`docs/testing.md §6–7`).
 
 ## Баримт бичиг
 
