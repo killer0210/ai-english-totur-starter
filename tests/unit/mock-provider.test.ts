@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { AiProviderError, type ReplyInput } from "@/lib/ai/adapter";
 import { createMockProvider, MOCK_SLOW_MS } from "@/lib/ai/providers/mock";
-import { replySchema } from "@/lib/ai/schemas";
+import { feedbackSchema, replySchema } from "@/lib/ai/schemas";
 
 function input(content: string, messageId = "m1"): ReplyInput {
   return {
@@ -65,5 +65,18 @@ describe("mock AI provider", () => {
       kind: "timeout",
     });
     expect(MOCK_SLOW_MS).toBeGreaterThan(20);
+  });
+
+  it("returns a schema-valid feedback from structured(), with a usage estimate", async () => {
+    const provider = createMockProvider("test");
+    const prompt = { system: "Review.", user: "Hello", schemaName: "feedback", jsonSchema: {} };
+    const result = await provider.structured(prompt, open());
+    expect(feedbackSchema.safeParse(result.data).success).toBe(true);
+    expect(result.usage?.inputTokens).toBeGreaterThan(0);
+    const invalid = await provider.structured({ ...prompt, user: "[mock:invalid]" }, open());
+    expect(feedbackSchema.safeParse(invalid.data).success).toBe(false);
+    await expect(
+      provider.structured({ ...prompt, user: "[mock:error]" }, open()),
+    ).rejects.toMatchObject({ kind: "provider_error" });
   });
 });

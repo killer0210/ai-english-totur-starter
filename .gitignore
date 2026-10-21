@@ -47,3 +47,6 @@ next-env.d.ts
 # editors
 *.swp
 *.swo
+
+# provider eval: the A/B key stays local until human scoring is done
+/docs/evals/blind-review.key.json

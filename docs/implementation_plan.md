@@ -77,6 +77,7 @@
 - **Хүрээ:** R-05 (`audit/decisions.md`): ажиллаж буй хүсэлттэй мессежийн retry → `IN_PROGRESS` эсвэл зардлыг хязгаарлах; `usage_counters`, `ai_usage_events` migration (M5-аас шилжсэн), `begin_user_turn`/`begin_retry`-д квот; сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
 - **Хүлээн авах шалгуур:** Провайдер унахад мессеж хадгалагдсан гэж харагдаж "Дахин оролдох" ажиллана; 41 дэх хариу `DAILY_LIMIT_REACHED`; провайдерын түүхий алдаа client-д хүрэхгүй; монгол оролтын зан төлөв шийдэгдсэн.
 - **Тест:** Unit — context builder, retry шийдвэр, төсөв. Integration (mock) — timeout → `reply_failed`, квот, `ai_usage_events`-д агуулга байхгүй. E2E — E5. Eval — анхны багц, гараар үнэлэх.
+- **Төлөв (2026-10-21):** Орох нөхцөлийн бэлтгэл (Q-12) — нэр дэвшигч Anthropic ба OpenAI (хэрэглэгчийн сонголт); adapter-ууд (`src/lib/ai/providers/anthropic.ts`, `openai.ts`) зөвхөн eval скриптэд, апп mock хэвээр; `conversation.v1`, `feedback.v1` prompt; `tests/evals/cases.json` (30, draft); `npm run eval:providers` (+ `--dry-run`). Бодит ажиллуулалт, хүний сохор үнэлгээ, сонголт хүлээгдэж байна ([evals/README.md](./evals/README.md)).
 
 ### M7 — Feedback
 - **Зорилго:** FR-05.

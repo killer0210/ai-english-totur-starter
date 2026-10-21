@@ -81,7 +81,7 @@ npm run db:reset                  # DB-г цэвэрлээд агуулгыг д
 npm run db:stop
 ```
 
-`eval` (M6) скрипт тухайн milestone-д нэмэгдэнэ. CI (`.github/workflows/ci.yml`): secret scan (gitleaks) ‖ Supabase start → lint → typecheck → test → contrast → integration → build → e2e. GitHub Actions одоогоор billing-ээр түгжигдсэн тул ижил шалгалтыг `npm run verify`-гаар local-д ажиллуулна (`docs/testing.md §6–7`).
+`npm run eval:providers` — AI провайдерын харьцуулалт (Q-12, `docs/evals/README.md`); `-- --dry-run` нь түлхүүргүй mock-оор ажиллана. CI (`.github/workflows/ci.yml`): secret scan (gitleaks) ‖ Supabase start → lint → typecheck → test → contrast → integration → build → e2e. GitHub Actions одоогоор billing-ээр түгжигдсэн тул ижил шалгалтыг `npm run verify`-гаар local-д ажиллуулна (`docs/testing.md §6–7`).
 
 ## Баримт бичиг
 

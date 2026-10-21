@@ -1,0 +1,75 @@
+{
+  "reply_deadline_ms": 25000,
+  "feedback_deadline_ms": 60000,
+  "providers": {
+    "anthropic": {
+      "model": "claude-opus-5-5",
+      "reply_effort": "low",
+      "feedback_effort": "medium",
+      "reply_max_tokens": 2000,
+      "feedback_max_tokens": 8000
+    },
+    "openai": {
+      "model": "gpt-6.1-sol",
+      "reply_effort": "low",
+      "feedback_effort": "medium",
+      "reply_max_tokens": 2000,
+      "feedback_max_tokens": 8000
+    }
+  },
+  "prices": {
+    "currency": "USD",
+    "unit": "per 1M tokens, standard tier, no caching, prompts under 100K tokens",
+    "models": [
+      {
+        "model": "claude-opus-5-5",
+        "input": 4,
+        "output": 20,
+        "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "claude-sonnet-5-5",
+        "input": 2,
+        "output": 10,
+        "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "claude-haiku-5-5",
+        "input": 0.1,
+        "output": 0.5,
+        "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "gpt-6.1-sol",
+        "input": 2,
+        "output": 10,
+        "source": "https://developers.openai.com/api/docs/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "gpt-6-astra",
+        "input": 10,
+        "output": 50,
+        "source": "https://developers.openai.com/api/docs/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "gpt-6-luna",
+        "input": 0.1,
+        "output": 0.5,
+        "source": "https://developers.openai.com/api/docs/pricing",
+        "retrieved": "2026-10-21"
+      },
+      {
+        "model": "mock",
+        "input": 0,
+        "output": 0,
+        "source": "dry run (src/lib/ai/providers/mock.ts)",
+        "retrieved": "2026-10-21"
+      }
+    ]
+  }
+}

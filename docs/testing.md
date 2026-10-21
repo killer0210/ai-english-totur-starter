@@ -78,6 +78,8 @@ describe("vocabulary.applyEvent", () => {
 
 Dataset-ийг **M6-аас** цуглуулж эхэлнэ. M6-аас өмнө хоёр провайдерыг 20–30 жишээгээр (монгол тайлбарын чанар, зардал, хурд) харьцуулж сонгоно.
 
+Провайдерын харьцуулалт (Q-12): `tests/evals/cases.json` — 30 зохиомол яриа (`review_status: "draft"`, багш шалгаагүй), хүлээгдэж буй засвар, `error`/`style` шошго, mission-ий хариутай. `npm run eval:providers` хоёр провайдерыг ижил prompt-оор (`src/lib/ai/prompts/conversation.v1.ts`, `feedback.v1.ts`) ажиллуулж, `docs/evals/`-д автомат хэмжүүр ба сохор (A/B) хүний үнэлгээний CSV гаргана — дэлгэрэнгүй [evals/README.md](./evals/README.md).
+
 Нэргүйжүүлсэн эсвэл зохиомол жишээний жижиг, хүнээр шалгасан dataset (`tests/evals/`):
 
 - Зөв өгүүлбэр (буруу гэж тэмдэглэгдэх ёсгүй)
@@ -139,7 +141,12 @@ E2E_PORT=3100 npm run verify   # :3000 завгүй бол
 ```
 Дараалал: lint → format:check → typecheck → test → check:contrast → gitleaks (git түүх, CI-ийн тохиргоо) → test:int → build → test:e2e. `gitleaks` суулгаагүй бол алгасахгүй, суулгах заавар хэвлээд унана (CI-ийн хувилбар 8.30.1). test:int-ээс өмнө local Supabase ажиллаж байгааг, test:e2e-ээс өмнө `E2E_PORT` чөлөөтэй эсэхийг шалгана. `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:$E2E_PORT`-ийг өөрөө тохируулна. Bash ≥ 4 шаардлагатай.
 
-Дараа нэмэгдэх: `eval` (M6). Тохируулаагүй скриптийг байгаа мэт бүү бич.
+M6-ийн өмнө (Q-12):
+```bash
+npm run eval:providers -- --dry-run   # mock провайдер, түлхүүргүй; test-results/eval-dry-run/
+npm run eval:providers                # бодит 2 провайдер (.env.local-ийн түлхүүр), docs/evals/ — зардалтай
+```
+Dry-run-ийг unit тест (`tests/unit/eval-*.test.ts`) хамарна; бодит ажиллуулалт `verify`-д ороогүй.
 
 Integration тест нь Route Handler-ийг (`POST`) `NextRequest`-ээр шууд дуудаж, RLS-ийг publishable түлхүүртэй client-ээр (browser-ийн чадах зүйл) шалгана. Тест хэрэглэгчид нууц үгтэй (зөвхөн тест тохиргоо); апп өөрөө зөвхөн OTP санал болгоно. E2E нь OTP кодыг local имэйл барих серверээс (`MAIL_CATCHER_URL`, порт 54324) уншина — API нь Mailpit эсвэл Inbucket эсэхийг **шалгах шаардлагатай** (хоёуланг оролдоно).
 

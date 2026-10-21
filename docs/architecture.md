@@ -124,12 +124,13 @@ Retry (`/messages/:msgId/retry`): `begin_retry` (`reply_failed` → `pending`, �
 ```ts
 interface AiProvider {
   reply(input: ReplyInput, opts: CallOptions): Promise<ReplyResult>;
-  structured<T>(input: StructuredInput, schema: ZodSchema<T>, opts: CallOptions): Promise<T>;
+  structured(input: StructuredInput, opts: CallOptions): Promise<StructuredResult>; // { data: unknown; usage? }
   // Streaming нэмбэл: replyStream(...) — тусдаа арга, одоогийн интерфейсийг эвдэхгүй
 }
 ```
 
 - Feature код провайдерын хариуны хэлбэрээс хамаарахгүй.
+- `structured` нь шалгаагүй JSON (`data`) буцаана; дуудагч Zod схемээр (`feedbackSchema`, `hintSchema`) шалгана — `reply` + `replySchema`-тай ижил, буруу гаралтыг бүртгэх боломжтой. `StructuredInput` нь prompt (`system`, `user`) ба провайдерт тохирох JSON schema (урт/тоон хязгааргүй; хязгаарыг Zod шалгана). Хариу бүр `usage` (input/output token)-тэй байж болно.
 - Провайдер, модель, prompt хувилбарыг `ai_usage_events` ба `feedback_reports`-д хадгална.
 - `mock` провайдер (`providers/mock.ts`) тодорхой хариу буцаана; unit/integration/E2E, CI, staging-д ашиглана; `APP_ENV=production` үед хориотой.
 - Провайдерын failover-ийг нууцлал, зардал, чанарыг ойлгохоос өмнө нэмэхгүй.
