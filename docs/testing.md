@@ -131,6 +131,7 @@ npm run content:review  # docs/content_review.md-г дахин үүсгэнэ
 npm run db:reset        # supabase db reset && content:sync
 ```
 Агуулгын integration тест (`tests/integration/content.test.ts`) нь бодит sync-ийг тогтмол `int-*` slug-тай тестийн сценаригаар ажиллуулж, тест бүрийн төгсгөлд `content/`-ийг дахин sync хийнэ; тестийн мөрүүд идэвхгүй хэвээр үлдэнэ. E2E-ийн `globalSetup` (`tests/e2e/global-setup.ts`) мөн `content/`-ийг sync хийнэ.
+M5-аас: ярианы integration тест (`tests/integration/conversation.test.ts`) ба E2E (`tests/e2e/talk.spec.ts`) нь mock провайдерыг мессеж дэх тэмдэглэгээгээр удирдана: `[mock:timeout]`, `[mock:error]`, `[mock:fail-once]` (эхний дуудлага унана, retry амжилттай), `[mock:invalid]` (`replySchema`-д тэнцэхгүй), `[mock:slow]` (зэрэг хүсэлтийн тест). Integration тест нь `getAiProvider()`-ийн `callCount(messageId)`-ээр "нэг л AI дуудлага"-г шалгана.
 Бүх CI шалгалтыг local-д (CI-ийн дараалал, орчинтой ижил):
 ```bash
 npm run verify          # scripts/verify.sh — эхний алдаан дээр зогсож, хураангуй хүснэгт хэвлэнэ
@@ -157,7 +158,7 @@ secret scan ‖ lint → format → typecheck → unit + component → contrast 
 - Milestone-ийн тайлан бүр `npm run verify`-ийн бүрэн хураангуй хүснэгтийг агуулна.
 - CI-ийн төлвийг **"unavailable (billing)"** гэж бичнэ, "passed" гэж хэзээ ч биш.
 - Workflow-ийг өөрчлөхгүй үлдээсэн тул billing засагдмагц CI шууд ажиллана; тэгэхэд энэ хэсгийг хасна.
-Migration main branch-д merge хийгдэхэд staging Supabase-д deploy хийгдэнэ (M5-аас).
+Migration main branch-д merge хийгдэхэд staging Supabase-д deploy хийгдэнэ — staging төсөл үүсээгүй, CI түгжээтэй тул одоогоор хийгдээгүй; алхмууд [staging.md](./staging.md).
 
 CI-ийн орчин: `APP_ENV=test`, `AI_PROVIDER=mock`, `NEXT_PUBLIC_SITE_URL=http://localhost:3000`. Secret scan тусдаа job-оор зэрэг ажиллана. Алхмууд: `.github/workflows/ci.yml` (runner `ubuntu-24.04`-д бэхэлсэн).
 Бүгд ногоон байж байж merge хийнэ. E2E унавал trace хадгална.

@@ -6,6 +6,11 @@ export const HOME_PATH = "/home";
 export const ONBOARDING_PATH = "/onboarding";
 export const SETTINGS_PATH = "/settings";
 export const LEARNING_PATH = "/path";
+export const HISTORY_PATH = "/history";
+
+export function talkPath(sessionId: string): string {
+  return `/talk/${sessionId}`;
+}
 
 const PUBLIC_PATHS = new Set(["/", LOGIN_PATH]);
 

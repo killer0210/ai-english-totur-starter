@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 
-import { HOME_PATH, LEARNING_PATH, SETTINGS_PATH } from "@/lib/auth/paths";
+import { HISTORY_PATH, HOME_PATH, LEARNING_PATH, SETTINGS_PATH } from "@/lib/auth/paths";
 
 // Top bar for signed-in pages. Settings opens from the profile icon
 // (docs/design_system.md §5, MobileNav); the bottom MobileNav arrives with its
-// destination pages, so the path link sits here until then.
+// destination pages, so the path and history links sit here until then.
 export async function AppHeader() {
   const t = await getTranslations("appHeader");
 
@@ -19,12 +19,18 @@ export async function AppHeader() {
           {t("brand")}
         </Link>
         <nav aria-label={t("nav")} className="flex items-center gap-1">
-          <Link
-            href={LEARNING_PATH}
-            className="flex min-h-11 items-center rounded-lg px-3 text-base font-medium text-foreground hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-          >
-            {t("path")}
-          </Link>
+          {[
+            { href: LEARNING_PATH, label: t("path") },
+            { href: HISTORY_PATH, label: t("history") },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="flex min-h-11 items-center rounded-lg px-3 text-base font-medium text-foreground hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+            >
+              {link.label}
+            </Link>
+          ))}
           <Link
             href={SETTINGS_PATH}
             aria-label={t("settings")}

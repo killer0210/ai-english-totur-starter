@@ -23,11 +23,11 @@ async function expectPath(page: Page, level: string, titles: string[]) {
   await expect(page.getByText(`Таны түвшин: ${level}.`)).toBeVisible();
   const cards = page.getByRole("main").getByRole("article");
   await expect(cards.getByRole("heading", { level: 3 })).toHaveText(titles);
-  // The first scenario is "next"; no locks, and no dead links or buttons on the cards.
+  // The first scenario is "next"; no locks: every card has its own start button.
   await expect(page.getByRole("main").getByText("Дараагийн")).toHaveCount(1);
   await expect(cards.first()).toContainText("Дараагийн");
   await expect(cards.getByRole("link")).toHaveCount(0);
-  await expect(cards.getByRole("button")).toHaveCount(0);
+  await expect(cards.getByRole("button", { name: "Яриа эхлүүлэх" })).toHaveCount(titles.length);
 }
 
 test("an onboarded user sees the path for their level; changing the level in settings changes it", async ({

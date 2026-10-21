@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { getCompletedScenarioIds } from "@/features/conversation/data";
 import { ScenarioCard, type ScenarioState } from "@/features/path/components/ScenarioCard";
 import { getPath } from "@/features/path/data";
 import { nextScenario } from "@/features/path/next-scenario";
@@ -11,15 +12,16 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
 // S05 — learning path for the learner's level: units → scenarios, no locks
-// (docs/prd.md FR-03). Starting a conversation from a card arrives in M5.
+// (docs/prd.md FR-03). A scenario is "done" once it has a completed conversation.
 export default async function PathPage() {
   const supabase = await createClient();
   const user = await getSessionUser(supabase);
   if (!user) redirect(LOGIN_PATH);
   const { englishLevel } = await getProfileSettings(supabase, user.id);
-  const units = await getPath(supabase, englishLevel);
-  // practice_sessions arrive in M5; until then nothing is completed.
-  const completed = new Set<string>();
+  const [units, completed] = await Promise.all([
+    getPath(supabase, englishLevel),
+    getCompletedScenarioIds(supabase),
+  ]);
   const next = nextScenario({ englishLevel }, completed, units);
 
   const t = await getTranslations("path");
@@ -43,7 +45,6 @@ export default async function PathPage() {
             ),
           })}
         </p>
-        <p className="text-sm text-muted-foreground">{t("comingSoon")}</p>
       </header>
 
       {units.length === 0 ? (

@@ -10,6 +10,13 @@ export type AppEnv = (typeof APP_ENVS)[number];
 
 type EnvSource = Record<string, string | undefined>;
 
+// Optional integer variable: unset or empty (as copied from .env.example) → default.
+const optionalInt = (min: number, max: number, fallback: number) =>
+  z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z.coerce.number().int().min(min).max(max).default(fallback),
+  );
+
 export const serverEnvSchema = z
   .object({
     // Fail closed: there is no default, an unset APP_ENV stops the app.
@@ -17,6 +24,11 @@ export const serverEnvSchema = z
     AI_PROVIDER: z.string().trim().min(1),
     // Supabase secret key (maps to the service_role Postgres role). Server only.
     SUPABASE_SECRET_KEY: z.string().trim().min(1),
+    // Total time budget for one AI reply (docs/trd.md §5). A pending message
+    // older than twice this becomes reply_failed (lazy expiry, ADR-003).
+    AI_REPLY_DEADLINE_MS: optionalInt(1000, 120_000, 25_000),
+    // Learner messages per conversation (docs/prd.md FR-04).
+    CONVERSATION_MAX_TURNS: optionalInt(1, 100, 20),
   })
   .refine((env) => !(env.APP_ENV === "production" && env.AI_PROVIDER === "mock"), {
     message: "AI_PROVIDER=mock is not allowed when APP_ENV=production",

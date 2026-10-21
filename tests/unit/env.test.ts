@@ -11,7 +11,29 @@ const publicVars = {
 
 describe("parseServerEnv", () => {
   it("accepts a valid local configuration", () => {
-    expect(parseServerEnv(server)).toEqual(server);
+    expect(parseServerEnv(server)).toEqual({
+      ...server,
+      AI_REPLY_DEADLINE_MS: 25_000,
+      CONVERSATION_MAX_TURNS: 20,
+    });
+  });
+
+  it("reads the reply deadline and turn limit, and rejects bad values", () => {
+    const custom = { ...server, AI_REPLY_DEADLINE_MS: "5000", CONVERSATION_MAX_TURNS: "3" };
+    expect(parseServerEnv(custom)).toMatchObject({
+      AI_REPLY_DEADLINE_MS: 5000,
+      CONVERSATION_MAX_TURNS: 3,
+    });
+    expect(() => parseServerEnv({ ...server, CONVERSATION_MAX_TURNS: "0" })).toThrow(
+      /CONVERSATION_MAX_TURNS/,
+    );
+    expect(() => parseServerEnv({ ...server, AI_REPLY_DEADLINE_MS: "soon" })).toThrow(
+      /AI_REPLY_DEADLINE_MS/,
+    );
+    // Empty, as copied from .env.example: the default applies.
+    expect(parseServerEnv({ ...server, CONVERSATION_MAX_TURNS: "" }).CONVERSATION_MAX_TURNS).toBe(
+      20,
+    );
   });
 
   it("fails closed when APP_ENV is unset or empty", () => {

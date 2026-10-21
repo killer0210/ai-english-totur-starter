@@ -37,3 +37,21 @@ export async function readProfile(id: string) {
 export async function deleteUser(id: string) {
   await admin().auth.admin.deleteUser(id);
 }
+
+/** A conversation owned by `userId`, created directly (for access tests). */
+export async function createSessionFor(userId: string, scenarioSlug: string) {
+  const db = admin();
+  const { data: scenario, error } = await db
+    .from("scenarios")
+    .select("id")
+    .eq("slug", scenarioSlug)
+    .single();
+  if (error) throw error;
+  const { data, error: insertError } = await db
+    .from("practice_sessions")
+    .insert({ user_id: userId, scenario_id: scenario.id, english_level_at_start: "A1" })
+    .select("id")
+    .single();
+  if (insertError) throw insertError;
+  return data.id as string;
+}

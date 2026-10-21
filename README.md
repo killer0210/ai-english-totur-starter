@@ -59,6 +59,8 @@ npm run invite -- you@example.com
 npm run dev                   # http://localhost:3000
 ```
 
+M5-аас яриа mock AI провайдертай ажиллана (бодит LLM M6-д): `/path` дээр сценарийн "Яриа эхлүүлэх" → `/talk/<id>`; өмнөх яриа `/history`. Mock-ийн алдааг мессежид `[mock:error]`, `[mock:timeout]`, `[mock:fail-once]` бичиж туршина (`docs/adr/ADR-002`). Сонголттой: `AI_REPLY_DEADLINE_MS` (25000), `CONVERSATION_MAX_TURNS` (20).
+
 Тохиргоо дутуу эсвэл буруу бол (жишээ нь `APP_ENV` байхгүй, эсвэл `APP_ENV=production` + `AI_PROVIDER=mock`) `dev`, `build`, `start` нь хувьсагчийн нэрийг заасан `EnvValidationError`-оор зогсоно.
 
 ## Шалгах

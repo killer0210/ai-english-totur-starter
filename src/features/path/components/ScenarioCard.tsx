@@ -3,14 +3,15 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 import type { PathScenario } from "../next-scenario";
+import { StartScenarioButton } from "./StartScenarioButton";
 
 export type ScenarioState = "done" | "next" | "todo";
 
 const badgeClass = "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-sm font-medium";
 
 // docs/design_system.md §5: title, level, goal, state (done / next). The state
-// is shown with text and an icon, not colour alone. Opening a conversation
-// arrives in M5, so the card is not a link or button yet.
+// is shown with text and an icon, not colour alone. The button starts a new
+// conversation for the scenario.
 export function ScenarioCard({
   scenario,
   state,
@@ -45,8 +46,11 @@ export function ScenarioCard({
           </span>
         ) : null}
       </div>
-      <h3 className="text-lg font-semibold">{scenario.titleMn}</h3>
-      <p className="text-base text-muted-foreground">{scenario.goalMn}</p>
+      <h3 id={`scenario-${scenario.id}`} className="text-lg font-semibold">
+        {scenario.titleMn}
+      </h3>
+      <p className="flex-1 text-base text-muted-foreground">{scenario.goalMn}</p>
+      <StartScenarioButton scenarioId={scenario.id} describedBy={`scenario-${scenario.id}`} />
     </article>
   );
 }

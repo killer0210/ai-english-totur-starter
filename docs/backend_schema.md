@@ -159,6 +159,13 @@ create index on messages (user_id);
 - `used_hint` — client-ийн мэдээлэл (зөвхөн статистик), эрхийн шийдвэрт ашиглахгүй.
 - 24 цагаас дээш идэвхгүй (`last_activity_at`) `active` session-ийг уншихад болон шинэ session эхлэхэд `abandoned` болгоно.
 
+**Хэрэгжүүлэлт (M5, `20261022090000_conversation.sql`):**
+- `seq` нь хүснэгт даяарх нэг identity; session доторх дараалал `(session_id, seq)` индексээр (дугаар session дотор тасралттай байж болно).
+- Lazy expiry: бичилтэд DB функц (`lock_session`) `pending` → `reply_failed`, `active` → `abandoned`-ийг хадгална; уншилтад (`/talk`, `GET /api/sessions*`) ижил дүрмийг `src/features/conversation/state.ts` тооцож харуулна, DB-д бичихгүй (уншилт RLS client-ээр, бичих эрхгүй).
+- Нэг session-ий бүх бичилт session мөрийг `for update`-ээр түгжинэ — зэрэг ижил `client_message_id` нэг л мессеж, нэг л AI дуудлага.
+- `complete_session`: `pending` мессеж байвал `IN_PROGRESS`; ≥ 3 мессежтэй бол `feedback_status = 'none'` хэвээр (feedback M7).
+- `session_target_words` M9-д (`vocabulary_items`-ийн дараа), квот (`usage_counters`, `ai_usage_events`) M6-д нэмэгдэнэ.
+
 ```sql
 -- Тухайн ярианы word missions (migration-д vocabulary_items-ийн дараа)
 create table session_target_words (
@@ -441,9 +448,10 @@ Supabase-ийн default privilege нь шинэ функцэд `anon`/`authentic
 
 | Функц | Үүрэг |
 |---|---|
-| `start_session(p_user_id, p_scenario_id)` | Хуучирсан session-ийг `abandoned`; session + 3 mission үүсгэнэ |
+| `start_session(p_user_id, p_scenario_id)` | Хуучирсан session-ийг `abandoned`; session + 3 mission үүсгэнэ (M5: mission-гүй; онбординг дуусаагүй → `FORBIDDEN`) |
 | `begin_user_turn(p_user_id, p_session_id, p_client_message_id, p_content, p_used_hint, p_daily_limit, p_max_turns)` | Давхардал шалгах (давхардал бол хуучин үр дүн, квот хасахгүй) → эзэмшил, `active`, блок, ээлжийн хязгаар → квот → `pending` мессеж |
 | `begin_retry(p_user_id, p_message_id, p_daily_limit)` | `reply_failed` → `pending`, квот хасна |
+| — M5-ийн хэлбэр | `begin_user_turn(p_user_id, p_session_id, p_client_message_id, p_content, p_max_turns, p_stale_ms)`, `begin_retry(p_user_id, p_session_id, p_message_id, p_stale_ms)`, `complete_session(p_user_id, p_session_id, p_stale_ms)`; `p_stale_ms = AI_REPLY_DEADLINE_MS × 2`. Квот (`p_daily_limit`) M6-д, `p_used_hint` M10-д шинэ migration-оор нэмэгдэнэ. Үр дүн нь `jsonb`: `{"error": "<код>"}` эсвэл `{"outcome", "session", "message", "reply"}` |
 | `finish_user_turn(p_user_id, p_message_id, p_reply)` | Хариутай бол assistant мессеж + `ok`; хариугүй бол `reply_failed` |
 | `consume_quota(p_user_id, p_operation, p_limit)` | Hint-ийн өдрийн квот |
 | `complete_session(p_user_id, p_session_id)` | Idempotent; < 3 хэрэглэгчийн мессеж бол `feedback_status = 'skipped'` |
@@ -485,6 +493,12 @@ Supabase-ийн default privilege нь шинэ функцэд `anon`/`authentic
 | POST | `/api/age-confirmation` | 18+ баталгаажуулалт (`age_confirmed_at`) |
 | PATCH | `/api/profile` | Тохиргоо (түвшин, зорилго, өдрийн минут, `baseline_confidence`); өөр талбар → `400`, онбординг дуусаагүй → `403` |
 | POST | `/api/account/deletion-request` | Устгах хүсэлт |
+
+**Ярианы API (M5):**
+- `POST /api/sessions/:id/messages` — M5-д `{clientMessageId, content}` (`usedHint` M10-д). Хариу: `200 {session, message, reply}`; AI амжилтгүй бол `503 AI_UNAVAILABLE` (`retryable: true`) + хадгалагдсан `message` (`status: "reply_failed"`), `session`. Давхардсан `client_message_id`: `ok` → хадгалсан хариу (`200`), `pending` → `409 IN_PROGRESS`, `reply_failed` → `503` (AI дуудлагагүй).
+- `POST .../retry` ба `POST .../complete` — body `{}`. Retry: хариутай мессеж → хадгалсан хариу; `pending` → `409 IN_PROGRESS`.
+- `GET /api/sessions/:id?before=<seq>&limit=<1–100, default 50>` — мессежүүд хуучнаас шинэ рүү, `previousCursor`. `GET /api/sessions?cursor=` — 20-оор, `last_activity_at desc`.
+- Бусад хэрэглэгчийн session/мессеж → `404 NOT_FOUND` (байгаа эсэхийг илчлэхгүй).
 
 ### Алдааны формат
 ```json

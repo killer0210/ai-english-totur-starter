@@ -10,7 +10,7 @@ LLM провайдер ба модель хараахан сонгогдоогү
 
 - `src/lib/ai/adapter.ts` дахь `AiProvider` интерфейс (`reply`, `structured`). Провайдерын SDK зөвхөн `src/lib/ai/providers/` дотор.
 - `AI_PROVIDER` env-ээр сонгоно; моделийн нэр env-д (`AI_MODEL_CONVERSATION`, `AI_MODEL_FEEDBACK`, `AI_MODEL_HINT`).
-- `providers/mock.ts`: тодорхой (deterministic) хариу, алдаа/timeout/буруу гаралтыг тохируулж болно. Unit, integration, E2E, CI, staging-д ашиглана. `APP_ENV=production` үед `AI_PROVIDER=mock` бол апп эхлэхгүй (`src/lib/env.ts`). `NODE_ENV`-ийг ашиглахгүй — `next build`/`next start` үргэлж `NODE_ENV=production` тул CI-ийн E2E mock ажиллах боломжгүй болно.
+- `providers/mock.ts`: тодорхой (deterministic) хариу, алдаа/timeout/буруу гаралтыг тохируулж болно (M5: хэрэглэгчийн мессеж дэх `[mock:timeout]`, `[mock:error]`, `[mock:fail-once]`, `[mock:invalid]`, `[mock:slow]` тэмдэглэгээгээр). `createMockProvider` нь `APP_ENV=production` үед өөрөө ч алдаа шиднэ. Unit, integration, E2E, CI, staging-д ашиглана. `APP_ENV=production` үед `AI_PROVIDER=mock` бол апп эхлэхгүй (`src/lib/env.ts`). `NODE_ENV`-ийг ашиглахгүй — `next build`/`next start` үргэлж `NODE_ENV=production` тул CI-ийн E2E mock ажиллах боломжгүй болно.
 - Бүх гаралтыг Zod-оор шалгана (`replySchema`, `feedbackSchema`, `hintSchema`).
 - Нийт хугацааны төсөв (reply 25 сек, feedback 60 сек), операц тутамд ≤ 2 оролдлого; retry зөвхөн timeout, сүлжээ, 429, 5xx.
 - Prompt: `src/lib/ai/prompts/<name>.v<N>.ts`; өөрчлөлт = шинэ хувилбар + eval.

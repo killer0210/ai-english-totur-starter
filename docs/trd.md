@@ -149,7 +149,7 @@ const feedbackSchema = z.object({
 | `AI_MODEL_CONVERSATION`, `AI_MODEL_FEEDBACK`, `AI_MODEL_HINT` | M6 | |
 | `AI_MAX_OUTPUT_TOKENS_REPLY`, `_FEEDBACK`, `_HINT` | M6 | |
 | `AI_TIMEOUT_MS` | M6 | |
-| `AI_REPLY_DEADLINE_MS` | M6 | 25000 |
+| `AI_REPLY_DEADLINE_MS` | M5 | 25000; `pending`-ийн lazy expiry = × 2 |
 | `AI_FEEDBACK_DEADLINE_MS` | M7 | 60000 |
 | `LIMIT_REPLIES_PER_DAY` | M6 | 40 |
 | `LIMIT_HINTS_PER_DAY` | M10 | 10 |

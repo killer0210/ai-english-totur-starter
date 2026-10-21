@@ -69,11 +69,12 @@
 - **Хүрээ:** `practice_sessions`, `messages`, `session_target_words` (missions-гүйгээр хоосон), `usage_counters`, `ai_usage_events` migration; DB функц `start_session`, `begin_user_turn`, `begin_retry`, `finish_user_turn`, `complete_session` (EXECUTE хаалттай); `AiProvider` интерфейс + `mock`; API (`/api/sessions*`, messages, retry, complete); `/talk/[sessionId]`, `/history` UI (Composer түгжээ, бүх төлөв); **staging Supabase төсөл + Vercel staging, CI-ээр migration deploy**; staging Supabase-ийн Auth тохиргоо: **Email provider асаалттай (ON)**, **"Allow new users to sign up" унтраалттай (OFF)** — `[auth.email] enable_signup = false` нь email provider-ийг бүхэлд нь унтрааж OTP-г хаадаг тул ялгаатай хоёр унтраалга.
 - **Хүлээн авах шалгуур:** Ижил `clientMessageId` давхар мессеж/дуудлага үүсгэхгүй; `pending`/`reply_failed` үед шинэ мессеж блоклогдоно; хугацаа хэтэрсэн `pending` гацахгүй; 20 ээлжийн хязгаар; staging дээр mock-оор урсгал ажиллана.
 - **Тест:** Unit — `sendMessageSchema`. Integration — `testing.md §3` #1–6, #8–10, #12; зэрэг давхар хүсэлт; `authenticated`-аар DB функц дуудах оролдлого унах. Component — Composer disabled/loading/blocked/error.
+- **Төлөв (2026-10-21):** Хэрэгжсэн — `practice_sessions`, `messages`, `start_session`, `begin_user_turn`, `begin_retry`, `finish_user_turn`, `complete_session`; `AiProvider` + `mock`; `/api/sessions*`; `/talk/[sessionId]`, `/history`; `npm run verify` local дээр давсан (CI: unavailable (billing)). **Хүрээний өөрчлөлт (хэрэглэгчийн шийдвэр):** `usage_counters`, `ai_usage_events` ба квот → M6; `session_target_words` → M9 (missions-тэй хамт); staging Supabase + Vercel staging + CI migration deploy хийгдээгүй — алхмууд [staging.md](./staging.md)-д, хэрэглэгч төслийг тусад нь үүсгэнэ. Component тест (Testing Library) нэмээгүй — Composer-ийн төлөвийг цэвэр функцээр (unit) ба E2E-ээр шалгасан.
 
 ### M6 — Бодит LLM, хязгаар, ажиглалт, eval dataset
 - **Орох нөхцөл:** Хоёр провайдерыг 20–30 жишээгээр (монгол тайлбарын чанар, зардал, хурд) харьцуулж сонгосон (`prd.md §10`); алдааны хяналтын хэрэгслийг сонгосон (M1-ээс хойшлогдсон).
 - **Зорилго:** FR-04 AI хариу, FR-10.
-- **Хүрээ:** Сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
+- **Хүрээ:** `usage_counters`, `ai_usage_events` migration (M5-аас шилжсэн), `begin_user_turn`/`begin_retry`-д квот; сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
 - **Хүлээн авах шалгуур:** Провайдер унахад мессеж хадгалагдсан гэж харагдаж "Дахин оролдох" ажиллана; 41 дэх хариу `DAILY_LIMIT_REACHED`; провайдерын түүхий алдаа client-д хүрэхгүй; монгол оролтын зан төлөв шийдэгдсэн.
 - **Тест:** Unit — context builder, retry шийдвэр, төсөв. Integration (mock) — timeout → `reply_failed`, квот, `ai_usage_events`-д агуулга байхгүй. E2E — E5. Eval — анхны багц, гараар үнэлэх.
 
@@ -91,7 +92,7 @@
 
 ### M9 — Word missions
 - **Зорилго:** FR-04 missions, PRD-ийн гол ялгарах шинж.
-- **Хүрээ:** `start_session` дахь mission сонголт (≤ 2 хэрэглэгчийн үг + сценарийн үг = 3); `save_feedback`-ийн mission ба тоолуурын хэсэг; `WordMissionChip`; feedback дэлгэцийн mission хэсэг.
+- **Хүрээ:** `session_target_words` migration (M5-аас шилжсэн); `start_session` дахь mission сонголт (≤ 2 хэрэглэгчийн үг + сценарийн үг = 3); `save_feedback`-ийн mission ба тоолуурын хэсэг; `WordMissionChip`; feedback дэлгэцийн mission хэсэг.
 - **Хүлээн авах шалгуур:** Шинэ хэрэглэгчийн анхны ярианд 3 mission; regenerate давхар тоолохгүй; session-д байхгүй key нөлөөлөхгүй; `active` үг mission болохгүй.
 - **Тест:** Unit — сонголтын функц, `applyEvent`. Integration — `testing.md §3` #6, #15, #16. E2E — E3. Eval — хувирсан хэлбэр, mission injection.
 
