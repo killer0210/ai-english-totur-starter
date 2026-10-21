@@ -51,22 +51,23 @@ create table profiles (
 ### 2.2 Агуулга (зөвхөн агуулгын скрипт / service role бичнэ)
 
 Агуулгын эх сурвалж нь `content/units.json` ба `content/scenarios/<slug>.json` (`src/features/path/content-schema.ts`-ийн Zod схемээр шалгана); `npm run content:sync` (`scripts/upsert-content.mts`, service role) нь idempotent upsert хийнэ (local ба production-д ижил скрипт; `db:reset` мөн үүнийг дууддаг). Хэрэгжүүлэлт (M4):
-- Түлхүүр: сценари — `slug`; бүлэг — `(english_level, position)` (бүлэгт `slug` байхгүй). Өөрчлөгдөөгүй мөрийг бичихгүй — хоёр дахь ажиллалт юу ч өөрчлөхгүй.
-- Хэзээ ч устгахгүй: файлаас хасагдсан бүлэг/сценари → `is_active = false`. `unique (unit_id, position)` идэвхгүй мөрд ч хамаарах тул байрлалаа шинэ сценарид шилжүүлэх идэвхгүй сценари тухайн бүлгийн сөрөг байрлал руу шилжинэ.
+- Түлхүүр: бүлэг ба сценари хоёулаа — `slug` (бүлгийн `slug` нь `20261021120000_content_keys.sql`-ээр нэмэгдсэн); сценарийн файл бүлгээ `unit_slug`-аар заана. Sync хийгдсэн slug-ийг бүү өөрчил. Өөрчлөгдөөгүй мөрийг бичихгүй — хоёр дахь ажиллалт юу ч өөрчлөхгүй.
+- Хэзээ ч устгахгүй: файлаас хасагдсан бүлэг/сценари → `is_active = false`, байрлал нь хэвээр. Байрлалын давтагдашгүй байдал зөвхөн идэвхтэй мөрд (partial unique index `… where is_active`), тиймээс шинэ мөр хуучны байрлалыг авч болно. Байрлалаа солих мөрийг sync эхлээд түр идэвхгүй болгож, дараа нь шинэ байрлалд идэвхжүүлнэ.
 - DB-д байгаа сценариас үг хасагдвал sync бичилт хийхээс өмнө алдаагаар зогсоно (M9-ийн `session_target_words` холбоосыг эвдэхгүйн тулд); хасах бол тусдаа migration.
-- Pilot: түвшин тутамд **1 бүлэг** (баримтад бүлгийн тоо заагаагүй). `review_status` (`draft`/`reviewed`) нь зөвхөн файлд; DB-д хадгалахгүй. Багшийн хяналтын хүснэгт: `docs/content_review.md` (`npm run content:review`).
+- Pilot: түвшин тутамд **1 бүлэг** (баримтад бүлгийн тоо заагаагүй). `review_status` (`draft`/`approved`) нь зөвхөн файлд; DB-д хадгалахгүй. Багшийн хяналтын хүснэгт: `docs/content_review.md` (`npm run content:review`).
 - RLS: сценари нь бүлэг нь идэвхтэй үед, үг нь сценари (ба бүлэг) нь идэвхтэй үед л харагдана; `anon`-д эрх байхгүй.
 
 ```sql
 create table units (
   id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
   english_level english_level not null,
   position int not null,
   title_mn text not null,
   goal_tags text[] not null default '{}',
-  is_active boolean not null default true,
-  unique (english_level, position)
+  is_active boolean not null default true
 );
+create unique index on units (english_level, position) where is_active;
 
 create table scenarios (
   id uuid primary key default gen_random_uuid(),
@@ -82,9 +83,10 @@ create table scenarios (
   english_level english_level not null,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  unique (unit_id, position)
+  updated_at timestamptz not null default now()
 );
+create unique index on scenarios (unit_id, position) where is_active;
+create index on scenarios (unit_id);
 
 create table scenario_words (
   id uuid primary key default gen_random_uuid(),

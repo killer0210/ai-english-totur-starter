@@ -2,18 +2,21 @@
   "review_status": "draft",
   "units": [
     {
+      "slug": "a1-everyday-basics",
       "english_level": "A1",
       "position": 1,
       "title_mn": "Өдөр тутмын анхны яриа",
       "goal_tags": ["daily", "travel"]
     },
     {
+      "slug": "a2-daily-life",
       "english_level": "A2",
       "position": 1,
       "title_mn": "Аялал, сургууль, ажлын өдөр тутам",
       "goal_tags": ["travel", "school", "work", "daily"]
     },
     {
+      "slug": "b1-expressing-ideas",
       "english_level": "B1",
       "position": 1,
       "title_mn": "Ажил, сургалт, аялалд санаагаа илэрхийлэх",

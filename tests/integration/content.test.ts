@@ -26,7 +26,7 @@ const testScenario = (slug: string, overrides: Partial<ContentSet["scenarios"][n
   review_status: "draft" as const,
   slug,
   english_level: "A1" as const,
-  unit_position: 1,
+  unit_slug: "a1-everyday-basics",
   position: 99,
   title_mn: `Тест ${slug}`,
   goal_mn: "Тестийн зорилго",
@@ -129,13 +129,70 @@ describe("content:sync", () => {
       true,
     );
     expect(await scenarioRow("int-replacement")).toMatchObject({ is_active: true, position: 99 });
-    const parked = await scenarioRow("int-removed-scenario");
-    expect(parked.is_active).toBe(false);
-    expect(parked.position).toBeLessThan(0);
+    // The removed scenario keeps its old position; uniqueness covers active rows only.
+    expect(await scenarioRow("int-removed-scenario")).toMatchObject({
+      is_active: false,
+      position: 99,
+    });
 
     expect(
       await syncContent(adminClient(), withScenarios(testScenario("int-replacement"))),
     ).toEqual([]);
+    await syncContent(adminClient(), shipped);
+  });
+
+  it("swaps the positions of two scenarios in one run", async () => {
+    const a = testScenario("int-swap-a", { position: 97 });
+    const b = testScenario("int-swap-b", { position: 98 });
+    await syncContent(adminClient(), withScenarios(a, b));
+
+    const changes = await syncContent(
+      adminClient(),
+      withScenarios({ ...a, position: 98 }, { ...b, position: 97 }),
+    );
+    expect(changes.toSorted()).toEqual([
+      "update scenario int-swap-a",
+      "update scenario int-swap-b",
+    ]);
+    expect(await scenarioRow("int-swap-a")).toMatchObject({ is_active: true, position: 98 });
+    expect(await scenarioRow("int-swap-b")).toMatchObject({ is_active: true, position: 97 });
+
+    await syncContent(adminClient(), shipped);
+  });
+
+  it("keys units by slug: a new unit takes a removed unit's position", async () => {
+    const extra = (slug: string, title_mn: string) => ({
+      slug,
+      english_level: "B1" as const,
+      position: 98,
+      title_mn,
+      goal_tags: [],
+    });
+    const withUnit = (unit: ReturnType<typeof extra>): ContentSet => ({
+      units: { ...shipped.units, units: [...shipped.units.units, unit] },
+      scenarios: shipped.scenarios,
+    });
+
+    await syncContent(adminClient(), withUnit(extra("int-unit-old", "Хуучин")));
+    // Same slug, new title: an update, not a second unit.
+    expect(await syncContent(adminClient(), withUnit(extra("int-unit-old", "Шинэ нэр")))).toEqual([
+      "update unit int-unit-old",
+    ]);
+
+    const changes = await syncContent(adminClient(), withUnit(extra("int-unit-new", "Шинэ")));
+    expect(changes[0]).toBe("deactivate unit int-unit-old");
+    expect(changes[1]).toMatch(/^(insert|update) unit int-unit-new$/);
+    const { data, error } = await adminClient()
+      .from("units")
+      .select("slug, position, is_active")
+      .in("slug", ["int-unit-old", "int-unit-new"])
+      .order("slug");
+    expect(error).toBeNull();
+    expect(data).toEqual([
+      { slug: "int-unit-new", position: 98, is_active: true },
+      { slug: "int-unit-old", position: 98, is_active: false },
+    ]);
+
     await syncContent(adminClient(), shipped);
   });
 
@@ -153,11 +210,21 @@ describe("content:sync", () => {
       ...shipped.units,
       units: [
         ...shipped.units.units,
-        { english_level: "B1" as const, position: 99, title_mn: "Тест бүлэг", goal_tags: [] },
+        {
+          slug: "int-hidden-unit",
+          english_level: "B1" as const,
+          position: 99,
+          title_mn: "Тест бүлэг",
+          goal_tags: [],
+        },
       ],
     };
     const slug = "int-hidden-unit";
-    const scenario = testScenario(slug, { english_level: "B1", unit_position: 99, position: 1 });
+    const scenario = testScenario(slug, {
+      english_level: "B1",
+      unit_slug: "int-hidden-unit",
+      position: 1,
+    });
     await syncContent(adminClient(), { units, scenarios: [...shipped.scenarios, scenario] });
     expect(await visibleSlugs(reader)).toContain(slug);
     const { id } = await scenarioRow(slug);
@@ -166,8 +233,7 @@ describe("content:sync", () => {
     const { error } = await adminClient()
       .from("units")
       .update({ is_active: false })
-      .eq("english_level", "B1")
-      .eq("position", 99);
+      .eq("slug", "int-hidden-unit");
     expect(error).toBeNull();
     expect(await visibleSlugs(reader)).not.toContain(slug);
     const words = await reader.from("scenario_words").select("id").eq("scenario_id", id);
@@ -177,6 +243,7 @@ describe("content:sync", () => {
 
     const cleanup = await syncContent(adminClient(), shipped);
     expect(cleanup).toEqual([`deactivate scenario ${slug}`]);
+    // The unit was already inactive, so only the scenario is reported.
   });
 });
 
@@ -184,13 +251,13 @@ describe("content RLS", () => {
   it("a signed-in user reads active content", async () => {
     const units = await reader
       .from("units")
-      .select("english_level, position")
+      .select("slug, english_level, position")
       .order("english_level");
     expect(units.error).toBeNull();
     expect(units.data).toEqual([
-      { english_level: "A1", position: 1 },
-      { english_level: "A2", position: 1 },
-      { english_level: "B1", position: 1 },
+      { slug: "a1-everyday-basics", english_level: "A1", position: 1 },
+      { slug: "a2-daily-life", english_level: "A2", position: 1 },
+      { slug: "b1-expressing-ideas", english_level: "B1", position: 1 },
     ]);
     const words = await reader.from("scenario_words").select("id, scenarios!inner(slug)");
     expect(words.error).toBeNull();
@@ -202,8 +269,7 @@ describe("content RLS", () => {
     const { data: unit } = await adminClient()
       .from("units")
       .select("id, title_mn")
-      .eq("english_level", "A1")
-      .eq("position", 1)
+      .eq("slug", "a1-everyday-basics")
       .single();
     const { data: scenario } = await adminClient()
       .from("scenarios")
@@ -220,7 +286,7 @@ describe("content RLS", () => {
     type Row = Record<string, unknown>;
     const rows: Record<(typeof TABLES)[number], { row: Row; id: string; patch: Row }> = {
       units: {
-        row: { english_level: "A1", position: 50, title_mn: "x" },
+        row: { slug: "int-rls-insert", english_level: "A1", position: 50, title_mn: "x" },
         id: unit!.id,
         patch: { title_mn: "hacked" },
       },

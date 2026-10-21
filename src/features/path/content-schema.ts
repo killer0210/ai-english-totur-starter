@@ -19,7 +19,7 @@ export function normalizeTerm(term: string): string {
 }
 
 /** "draft" until an English teacher has reviewed the file (prd.md FR-03). */
-export const REVIEW_STATUSES = ["draft", "reviewed"] as const;
+export const REVIEW_STATUSES = ["draft", "approved"] as const;
 
 const text = z.string().trim().min(1);
 const position = z.int().min(1);
@@ -27,6 +27,8 @@ const position = z.int().min(1);
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const unitSchema = z.strictObject({
+  /** Stable identity (the sync key); never rename a synced unit's slug. */
+  slug: z.string().regex(SLUG_PATTERN),
   english_level: z.enum(ENGLISH_LEVELS),
   position,
   title_mn: text,
@@ -49,8 +51,8 @@ export const scenarioFileSchema = z
     review_status: z.enum(REVIEW_STATUSES),
     slug: z.string().regex(SLUG_PATTERN),
     english_level: z.enum(ENGLISH_LEVELS),
-    /** The unit at the same english_level with this position. */
-    unit_position: position,
+    /** slug of a unit in content/units.json at the same english_level. */
+    unit_slug: z.string().regex(SLUG_PATTERN),
     position,
     title_mn: text,
     goal_mn: text,
@@ -85,28 +87,43 @@ export const contentSetSchema = z
     scenarios: z.array(scenarioFileSchema),
   })
   .superRefine(({ units, scenarios }, ctx) => {
-    const unitKeys = new Set<string>();
+    const unitLevels = new Map<string, string>();
+    const unitPositions = new Set<string>();
     units.units.forEach((unit, index) => {
+      if (unitLevels.has(unit.slug)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["units", "units", index, "slug"],
+          message: `duplicate unit slug "${unit.slug}"`,
+        });
+      }
+      unitLevels.set(unit.slug, unit.english_level);
       const key = `${unit.english_level}/${unit.position}`;
-      if (unitKeys.has(key)) {
+      if (unitPositions.has(key)) {
         ctx.addIssue({
           code: "custom",
           path: ["units", "units", index, "position"],
           message: `duplicate unit position ${key}`,
         });
       }
-      unitKeys.add(key);
+      unitPositions.add(key);
     });
 
     const slugs = new Set<string>();
     const positions = new Set<string>();
     scenarios.forEach((scenario, index) => {
-      const unitKey = `${scenario.english_level}/${scenario.unit_position}`;
-      if (!unitKeys.has(unitKey)) {
+      const unitLevel = unitLevels.get(scenario.unit_slug);
+      if (unitLevel === undefined) {
         ctx.addIssue({
           code: "custom",
-          path: ["scenarios", index, "unit_position"],
-          message: `no unit ${unitKey} for scenario "${scenario.slug}"`,
+          path: ["scenarios", index, "unit_slug"],
+          message: `no unit "${scenario.unit_slug}" for scenario "${scenario.slug}"`,
+        });
+      } else if (unitLevel !== scenario.english_level) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["scenarios", index, "english_level"],
+          message: `scenario "${scenario.slug}" is ${scenario.english_level} but unit "${scenario.unit_slug}" is ${unitLevel}`,
         });
       }
       if (slugs.has(scenario.slug)) {
@@ -117,12 +134,12 @@ export const contentSetSchema = z
         });
       }
       slugs.add(scenario.slug);
-      const positionKey = `${unitKey}/${scenario.position}`;
+      const positionKey = `${scenario.unit_slug}/${scenario.position}`;
       if (positions.has(positionKey)) {
         ctx.addIssue({
           code: "custom",
           path: ["scenarios", index, "position"],
-          message: `duplicate position ${scenario.position} in unit ${unitKey}`,
+          message: `duplicate position ${scenario.position} in unit "${scenario.unit_slug}"`,
         });
       }
       positions.add(positionKey);

@@ -21,7 +21,7 @@ const scenario = {
   review_status: "draft",
   slug: "order-at-a-cafe",
   english_level: "A1",
-  unit_position: 1,
+  unit_slug: "a1-basics",
   position: 1,
   title_mn: "Кафед захиалах",
   goal_mn: "Уух юм захиалах.",
@@ -34,7 +34,15 @@ const scenario = {
 
 const units = {
   review_status: "draft",
-  units: [{ english_level: "A1", position: 1, title_mn: "Анхны яриа", goal_tags: ["daily"] }],
+  units: [
+    {
+      slug: "a1-basics",
+      english_level: "A1",
+      position: 1,
+      title_mn: "Анхны яриа",
+      goal_tags: ["daily"],
+    },
+  ],
 };
 
 function omit<T extends object>(value: T, key: keyof T): Partial<T> {
@@ -119,6 +127,13 @@ describe("scenarioFileSchema", () => {
     const noStatus = omit(scenario, "review_status");
     expect(issuesOf(scenarioFileSchema.safeParse(noStatus))).toEqual(["review_status"]);
   });
+
+  it("accepts review_status draft or approved only", () => {
+    const approved = { ...scenario, review_status: "approved" };
+    expect(scenarioFileSchema.safeParse(approved).success).toBe(true);
+    const reviewed = { ...scenario, review_status: "reviewed" };
+    expect(issuesOf(scenarioFileSchema.safeParse(reviewed))).toEqual(["review_status"]);
+  });
 });
 
 describe("contentSetSchema", () => {
@@ -141,21 +156,38 @@ describe("contentSetSchema", () => {
   });
 
   it("allows the same position in different units", () => {
+    const a2 = { ...units.units[0]!, slug: "a2-basics", english_level: "A2" };
     const set = {
-      units: { ...units, units: [...units.units, { ...units.units[0]!, english_level: "A2" }] },
-      scenarios: [scenario, { ...scenario, slug: "other", english_level: "A2" }],
+      units: { ...units, units: [...units.units, a2] },
+      scenarios: [
+        scenario,
+        { ...scenario, slug: "other", english_level: "A2", unit_slug: "a2-basics" },
+      ],
     };
     expect(contentSetSchema.safeParse(set).success).toBe(true);
   });
 
-  it("rejects a scenario whose unit does not exist and duplicate unit positions", () => {
+  it("rejects a scenario whose unit does not exist or is at another level", () => {
+    expect(
+      issuesOf(
+        contentSetSchema.safeParse({ units, scenarios: [{ ...scenario, unit_slug: "missing" }] }),
+      ),
+    ).toEqual(["scenarios.0.unit_slug"]);
     expect(
       issuesOf(
         contentSetSchema.safeParse({ units, scenarios: [{ ...scenario, english_level: "B1" }] }),
       ),
-    ).toEqual(["scenarios.0.unit_position"]);
-    const twice = { ...units, units: [units.units[0]!, units.units[0]!] };
-    expect(issuesOf(contentSetSchema.safeParse({ units: twice, scenarios: [] }))).toEqual([
+    ).toEqual(["scenarios.0.english_level"]);
+  });
+
+  it("rejects duplicate unit slugs and duplicate unit positions in a level", () => {
+    const unit = units.units[0]!;
+    const sameSlug = { ...units, units: [unit, { ...unit, position: 2 }] };
+    expect(issuesOf(contentSetSchema.safeParse({ units: sameSlug, scenarios: [] }))).toEqual([
+      "units.units.1.slug",
+    ]);
+    const samePosition = { ...units, units: [unit, { ...unit, slug: "a1-other" }] };
+    expect(issuesOf(contentSetSchema.safeParse({ units: samePosition, scenarios: [] }))).toEqual([
       "units.units.1.position",
     ]);
   });
@@ -180,6 +212,10 @@ describe("shipped content", () => {
       expect(positions).toEqual([1, 2, 3, 4]);
     }
     expect(content.units.units.map((u) => u.english_level)).toEqual(["A1", "A2", "B1"]);
+    for (const s of content.scenarios) {
+      const unit = content.units.units.find((u) => u.slug === s.unit_slug);
+      expect(unit?.english_level).toBe(s.english_level);
+    }
   });
 
   it("names the file after its slug and reports the file of an invalid scenario", async () => {

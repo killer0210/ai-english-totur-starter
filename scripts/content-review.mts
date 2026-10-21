@@ -12,7 +12,7 @@ const levels = ["A1", "A2", "B1"] as const;
 const lines = [
   "# Агуулгын хяналт — багшид",
   "",
-  '`content/`-оос `npm run content:review`-ээр үүсгэсэн; гараар бүү засварла. Засварыг `content/scenarios/<slug>.json`-д хийж, дахин үүсгэнэ. Хянаж дууссан файлын `review_status`-ийг `"reviewed"` болгоно.',
+  '`content/`-оос `npm run content:review`-ээр үүсгэсэн; гараар бүү засварла. Засварыг `content/scenarios/<slug>.json`-д хийж, дахин үүсгэнэ. Хянаж дууссан файлын `review_status`-ийг `"approved"` болгоно.',
   "",
   "Шалгах зүйл: англи хэл түвшиндээ тохирсон эсэх (`intro_en`, жишээ өгүүлбэр), монгол утга зөв ба ойлгомжтой эсэх, зорилго (`goal_mn`) сценаритэй нийцэж буй эсэх.",
   "",
@@ -25,7 +25,7 @@ for (const level of levels) {
       "",
     );
     const scenarios = content.scenarios
-      .filter((s) => s.english_level === level && s.unit_position === unit.position)
+      .filter((s) => s.unit_slug === unit.slug)
       .toSorted((a, b) => a.position - b.position);
     for (const s of scenarios) {
       lines.push(

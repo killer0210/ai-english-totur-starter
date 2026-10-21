@@ -13,10 +13,10 @@ import {
 } from "./content-schema.ts";
 
 // Content sync (D-11, ADR-005): content/ files → units, scenarios,
-// scenario_words, through a service_role client. Idempotent, keyed by
-// english_level + position for units (they have no slug) and by slug for
-// scenarios. Never deletes: rows missing from the files become
-// is_active = false. A second run with the same files writes nothing.
+// scenario_words, through a service_role client. Idempotent, keyed by slug
+// for units and scenarios. Never deletes: rows missing from the files become
+// is_active = false and keep their position (positions are unique among active
+// rows only). A second run with the same files writes nothing.
 
 export class ContentError extends Error {
   constructor(message: string) {
@@ -70,6 +70,7 @@ export async function loadContent(root = "content"): Promise<ContentSet> {
 
 type UnitRow = {
   id: string;
+  slug: string;
   english_level: string;
   position: number;
   title_mn: string;
@@ -114,9 +115,6 @@ async function check<T>(
   return data as T;
 }
 
-const unitKey = (level: string, position: number) => `${level}/${position}`;
-const slotKey = (unitId: string, position: number) => `${unitId}/${position}`;
-
 /**
  * Applies `content` to the database. Returns one line per write; an empty
  * list means the database already matched the files.
@@ -126,7 +124,7 @@ export async function syncContent(db: SupabaseClient, content: ContentSet): Prom
 
   const [units, scenarios, words] = await Promise.all([
     check<UnitRow[]>(
-      db.from("units").select("id, english_level, position, title_mn, goal_tags, is_active"),
+      db.from("units").select("id, slug, english_level, position, title_mn, goal_tags, is_active"),
       "read units",
     ),
     check<ScenarioRow[]>(
@@ -162,21 +160,59 @@ export async function syncContent(db: SupabaseClient, content: ContentSet): Prom
     );
   }
 
-  // Units: identity is (english_level, position).
-  const unitIdByKey = new Map(units.map((u) => [unitKey(u.english_level, u.position), u.id]));
-  const wantedUnits = new Set<string>();
+  // Rows that leave their slot, or leave the files, are deactivated first: the
+  // unique (…, position) indexes cover active rows only, so this frees every
+  // slot the files want before any row takes one.
+  const wantedUnits = new Map(content.units.units.map((u) => [u.slug, u]));
+  const wantedScenarios = new Map(content.scenarios.map((s) => [s.slug, s]));
+  const unitById = new Map(units.map((u) => [u.id, u]));
+  for (const unit of units) {
+    const want = wantedUnits.get(unit.slug);
+    if (!unit.is_active) continue;
+    if (!want || want.english_level !== unit.english_level || want.position !== unit.position) {
+      await check(
+        db.from("units").update({ is_active: false }).eq("id", unit.id),
+        `deactivate unit ${unit.slug}`,
+      );
+      unit.is_active = false;
+      if (!want) changes.push(`deactivate unit ${unit.slug}`);
+    }
+  }
+  for (const row of scenarios) {
+    const want = wantedScenarios.get(row.slug);
+    if (!row.is_active) continue;
+    if (
+      !want ||
+      want.unit_slug !== unitById.get(row.unit_id)?.slug ||
+      want.position !== row.position
+    ) {
+      await check(
+        db.from("scenarios").update({ is_active: false }).eq("id", row.id),
+        `deactivate scenario ${row.slug}`,
+      );
+      row.is_active = false;
+      if (!want) changes.push(`deactivate scenario ${row.slug}`);
+    }
+  }
+
+  // Units: identity is the slug.
+  const unitBySlug = new Map(units.map((u) => [u.slug, u]));
+  const unitIdBySlug = new Map<string, string>();
   for (const unit of content.units.units) {
-    const key = unitKey(unit.english_level, unit.position);
-    wantedUnits.add(key);
-    const existing = units.find((u) => u.id === unitIdByKey.get(key));
+    const existing = unitBySlug.get(unit.slug);
     if (!existing) {
       const [row] = await check<{ id: string }[]>(
         db.from("units").insert(unit).select("id"),
-        `insert unit ${key}`,
+        `insert unit ${unit.slug}`,
       );
-      unitIdByKey.set(key, row!.id);
-      changes.push(`insert unit ${key}`);
-    } else if (
+      unitIdBySlug.set(unit.slug, row!.id);
+      changes.push(`insert unit ${unit.slug}`);
+      continue;
+    }
+    unitIdBySlug.set(unit.slug, existing.id);
+    if (
+      existing.english_level !== unit.english_level ||
+      existing.position !== unit.position ||
       existing.title_mn !== unit.title_mn ||
       JSON.stringify(existing.goal_tags) !== JSON.stringify(unit.goal_tags) ||
       !existing.is_active
@@ -184,62 +220,19 @@ export async function syncContent(db: SupabaseClient, content: ContentSet): Prom
       await check(
         db
           .from("units")
-          .update({ title_mn: unit.title_mn, goal_tags: unit.goal_tags, is_active: true })
+          .update({ ...unit, is_active: true })
           .eq("id", existing.id),
-        `update unit ${key}`,
+        `update unit ${unit.slug}`,
       );
-      changes.push(`update unit ${key}`);
-    }
-  }
-  for (const unit of units) {
-    const key = unitKey(unit.english_level, unit.position);
-    if (unit.is_active && !wantedUnits.has(key)) {
-      await check(
-        db.from("units").update({ is_active: false }).eq("id", unit.id),
-        `deactivate unit ${key}`,
-      );
-      changes.push(`deactivate unit ${key}`);
+      changes.push(`update unit ${unit.slug}`);
     }
   }
 
-  // Scenarios: identity is the slug; (unit_id, position) is unique, also for
-  // inactive rows. Rows that must leave a slot first move to a free negative
-  // position in their unit (removed scenarios stay parked there), then the
-  // wanted rows take their final slots.
+  // Scenarios: identity is the slug.
   const wanted = content.scenarios.map((scenario) => ({
     scenario,
-    unitId: unitIdByKey.get(unitKey(scenario.english_level, scenario.unit_position))!,
+    unitId: unitIdBySlug.get(scenario.unit_slug)!,
   }));
-  const targetSlots = new Map(wanted.map((w) => [slotKey(w.unitId, w.scenario.position), w]));
-  const wantedBySlug = new Map(wanted.map((w) => [w.scenario.slug, w]));
-
-  const nextFree = new Map<string, number>();
-  const freePosition = (unitId: string) => {
-    const lowest =
-      nextFree.get(unitId) ??
-      Math.min(0, ...scenarios.filter((s) => s.unit_id === unitId).map((s) => s.position));
-    nextFree.set(unitId, lowest - 1);
-    return lowest - 1;
-  };
-
-  for (const row of scenarios) {
-    const want = wantedBySlug.get(row.slug);
-    const moving = want && (want.unitId !== row.unit_id || want.scenario.position !== row.position);
-    const occupant = targetSlots.get(slotKey(row.unit_id, row.position));
-    const blocking = !want && occupant !== undefined;
-    if (moving || blocking) {
-      const parked = freePosition(row.unit_id);
-      const update = blocking ? { position: parked, is_active: false } : { position: parked };
-      await check(
-        db.from("scenarios").update(update).eq("id", row.id),
-        `move scenario ${row.slug}`,
-      );
-      if (blocking && row.is_active) changes.push(`deactivate scenario ${row.slug}`);
-      else changes.push(`move scenario ${row.slug}`);
-      row.position = parked;
-      if (blocking) row.is_active = false;
-    }
-  }
 
   for (const { scenario, unitId } of wanted) {
     const values = {
@@ -303,16 +296,6 @@ export async function syncContent(db: SupabaseClient, content: ContentSet): Prom
         );
         changes.push(`update word ${scenario.slug}: ${word.term}`);
       }
-    }
-  }
-
-  for (const row of scenarios) {
-    if (row.is_active && !wantedBySlug.has(row.slug)) {
-      await check(
-        db.from("scenarios").update({ is_active: false }).eq("id", row.id),
-        `deactivate scenario ${row.slug}`,
-      );
-      changes.push(`deactivate scenario ${row.slug}`);
     }
   }
 
