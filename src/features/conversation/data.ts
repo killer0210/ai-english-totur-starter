@@ -18,7 +18,7 @@ import type {
   TurnResult,
 } from "./types";
 
-// Writes: the DB functions of supabase/migrations/20261022090000_conversation.sql
+// Writes: the DB functions of supabase/migrations/20261021130000_conversation.sql
 // through the service-role client (ADR-005). Reads: the user-session client,
 // so RLS returns only the user's own rows (ADR-004).
 

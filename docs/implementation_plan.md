@@ -74,7 +74,7 @@
 ### M6 — Бодит LLM, хязгаар, ажиглалт, eval dataset
 - **Орох нөхцөл:** Хоёр провайдерыг 20–30 жишээгээр (монгол тайлбарын чанар, зардал, хурд) харьцуулж сонгосон (`prd.md §10`); алдааны хяналтын хэрэгслийг сонгосон (M1-ээс хойшлогдсон).
 - **Зорилго:** FR-04 AI хариу, FR-10.
-- **Хүрээ:** `usage_counters`, `ai_usage_events` migration (M5-аас шилжсэн), `begin_user_turn`/`begin_retry`-д квот; сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
+- **Хүрээ:** R-05 (`audit/decisions.md`): ажиллаж буй хүсэлттэй мессежийн retry → `IN_PROGRESS` эсвэл зардлыг хязгаарлах; `usage_counters`, `ai_usage_events` migration (M5-аас шилжсэн), `begin_user_turn`/`begin_retry`-д квот; сонгосон провайдерын adapter; `conversation.v1`; context builder (`<learner_message>`, танилцуулга, сүүлийн 12); нийт хугацааны төсөв + ≤ 2 оролдлого; `replySchema`; `ai_usage_events`; өдрийн 40 хариуны квот (Asia/Ulaanbaatar); алдааны төлөв UI; **eval dataset цуглуулж эхлэх** (`tests/evals/`, injection, монгол оролт); зардлыг хэмжиж нийт өдрийн төсвийг санал болгох.
 - **Хүлээн авах шалгуур:** Провайдер унахад мессеж хадгалагдсан гэж харагдаж "Дахин оролдох" ажиллана; 41 дэх хариу `DAILY_LIMIT_REACHED`; провайдерын түүхий алдаа client-д хүрэхгүй; монгол оролтын зан төлөв шийдэгдсэн.
 - **Тест:** Unit — context builder, retry шийдвэр, төсөв. Integration (mock) — timeout → `reply_failed`, квот, `ai_usage_events`-д агуулга байхгүй. E2E — E5. Eval — анхны багц, гараар үнэлэх.
 

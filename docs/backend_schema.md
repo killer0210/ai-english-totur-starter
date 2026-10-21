@@ -159,7 +159,7 @@ create index on messages (user_id);
 - `used_hint` — client-ийн мэдээлэл (зөвхөн статистик), эрхийн шийдвэрт ашиглахгүй.
 - 24 цагаас дээш идэвхгүй (`last_activity_at`) `active` session-ийг уншихад болон шинэ session эхлэхэд `abandoned` болгоно.
 
-**Хэрэгжүүлэлт (M5, `20261022090000_conversation.sql`):**
+**Хэрэгжүүлэлт (M5, `20261021130000_conversation.sql`):**
 - `seq` нь хүснэгт даяарх нэг identity; session доторх дараалал `(session_id, seq)` индексээр (дугаар session дотор тасралттай байж болно).
 - Lazy expiry: бичилтэд DB функц (`lock_session`) `pending` → `reply_failed`, `active` → `abandoned`-ийг хадгална; уншилтад (`/talk`, `GET /api/sessions*`) ижил дүрмийг `src/features/conversation/state.ts` тооцож харуулна, DB-д бичихгүй (уншилт RLS client-ээр, бичих эрхгүй).
 - Нэг session-ий бүх бичилт session мөрийг `for update`-ээр түгжинэ — зэрэг ижил `client_message_id` нэг л мессеж, нэг л AI дуудлага.
